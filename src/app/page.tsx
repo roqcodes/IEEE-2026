@@ -51,12 +51,11 @@ export default function HomePage() {
             </Link>
 
             <Link href="#" className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-[--color-navy]">
-              {/* "People" style card with solid background and circular photos */}
               <div className="w-full aspect-[16/10] bg-[--color-navy-light] flex items-center justify-center gap-4 p-8 overflow-hidden">
-                <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden group-hover:scale-110 transition-transform duration-500">
+                <div className="w-24 h-24 border-4 border-white overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-lg">
                   <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop" alt="Person 1" className="w-full h-full object-cover" />
                 </div>
-                <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden group-hover:scale-110 transition-transform duration-500">
+                <div className="w-24 h-24 border-4 border-white overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-lg">
                   <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop" alt="Person 2" className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -148,7 +147,7 @@ export default function HomePage() {
               {/* Tilted Tablet Mockup Placeholder */}
               <div className="w-64 h-96 bg-white shadow-2xl transform rotate-12 flex flex-col overflow-hidden">
                 <div className="h-12 bg-gray-100 border-b flex items-center px-4">
-                  <div className="w-16 h-2 bg-gray-300 rounded"></div>
+                  <div className="w-16 h-2 bg-gray-300"></div>
                 </div>
                 <div className="flex-1 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center p-6 text-center">
                   <h3 className="text-white font-serif font-bold text-2xl">2026<br/>Tech Outlook</h3>
@@ -243,22 +242,22 @@ export default function HomePage() {
           <div className="w-full lg:w-2/3">
             <ul className="flex flex-col gap-6">
               <li>
-                <Link href="#" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
+                <Link href="/about" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
                   <span className="text-[--color-gold] font-sans text-3xl font-light">&rsaquo;</span> Membership Benefits
                 </Link>
               </li>
               <li>
-                <Link href="#" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
+                <Link href="/events" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
                   <span className="text-[--color-gold] font-sans text-3xl font-light">&rsaquo;</span> Upcoming Conferences
                 </Link>
               </li>
               <li>
-                <Link href="#" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
+                <Link href="/achievements" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
                   <span className="text-[--color-gold] font-sans text-3xl font-light">&rsaquo;</span> Advance Your Career
                 </Link>
               </li>
               <li>
-                <Link href="#" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
+                <Link href="/societies" className="flex items-center gap-4 text-white hover:text-[--color-gold] transition-colors text-2xl font-serif">
                   <span className="text-[--color-gold] font-sans text-3xl font-light">&rsaquo;</span> Communities & Connection
                 </Link>
               </li>

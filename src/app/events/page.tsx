@@ -1,11 +1,4 @@
 "use client";
-/**
- * Events Listing Page — /events
- * Client Component to support upcoming/past filter tabs interactively.
- *
- * Uses data from /data/events.ts.
- * Dynamic routes (/events/[slug]) handled in a separate file.
- */
 
 import { useState } from "react";
 import EventCard from "@/components/EventCard";
@@ -23,9 +16,9 @@ export default function EventsPage() {
   });
 
   const tabs: { label: string; value: Filter }[] = [
-    { label: "Upcoming", value: "upcoming" },
-    { label: "Past Events", value: "past" },
-    { label: "All Events", value: "all" },
+    { label: "UPCOMING", value: "upcoming" },
+    { label: "PAST EVENTS", value: "past" },
+    { label: "ALL EVENTS", value: "all" },
   ];
 
   return (
@@ -36,11 +29,11 @@ export default function EventsPage() {
         subtitle="Workshops, competitions, seminars, and more — there's always something happening at IEEE CUSAT."
       />
 
-      <section className="py-16 bg-white" aria-label="Events listing">
+      <section className="py-24 bg-[#FAFAFA]" aria-label="Events listing">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* ── Filter Tabs ── */}
           <div
-            className="flex items-center gap-1 mb-10 p-1 bg-[--color-surface] rounded-xl border border-[--color-border] w-fit"
+            className="flex flex-wrap items-center gap-2 mb-12"
             role="tablist"
             aria-label="Filter events"
           >
@@ -51,17 +44,11 @@ export default function EventsPage() {
                 aria-selected={filter === tab.value}
                 id={`tab-${tab.value}`}
                 onClick={() => setFilter(tab.value)}
-                className={[
-                  "px-5 py-2 rounded-lg text-sm font-semibold transition-all",
+                className={`px-8 py-3 border-2 border-[--color-navy] text-xs font-bold tracking-widest uppercase transition-colors ${
                   filter === tab.value
-                    ? "text-white shadow-sm"
-                    : "text-[--color-slate] hover:text-[--color-ieee-blue]",
-                ].join(" ")}
-                style={
-                  filter === tab.value
-                    ? { background: "var(--color-ieee-blue)" }
-                    : {}
-                }
+                    ? "bg-[--color-navy] text-white"
+                    : "bg-white text-[--color-navy] hover:bg-[--color-navy] hover:text-white"
+                }`}
               >
                 {tab.label}
               </button>
@@ -80,9 +67,9 @@ export default function EventsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 text-[--color-muted]">
-              <p className="text-5xl mb-4">📅</p>
-              <p className="text-lg font-medium">No events found.</p>
+            <div className="text-center py-32 bg-white border border-[--color-border] text-[--color-muted] shadow-sm">
+              <p className="text-4xl mb-6">📅</p>
+              <p className="text-xl font-bold font-serif text-[--color-navy]">No events found.</p>
             </div>
           )}
         </div>

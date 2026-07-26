@@ -71,6 +71,16 @@ export default function Navbar() {
             </div>
           </Link>
 
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-8">
+            <Link href="/" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Home</Link>
+            <Link href="/about" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>About</Link>
+            <Link href="/events" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Events</Link>
+            <Link href="/societies" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Societies</Link>
+            <Link href="/gallery" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Gallery</Link>
+            <Link href="/contact" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Contact</Link>
+          </div>
+
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* Search Icon */}
@@ -89,7 +99,7 @@ export default function Navbar() {
             {/* Hamburger Icon */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className={`w-10 h-10 border flex items-center justify-center transition-colors ${
+              className={`w-10 h-10 border flex items-center justify-center transition-colors lg:hidden ${
                 isSolid
                   ? "border-[--color-border] text-[--color-navy] hover:bg-gray-50"
                   : "border-white/30 text-white hover:bg-white/10"

@@ -16,16 +16,16 @@ export default function Footer() {
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <ul className="space-y-3 text-sm text-[--color-muted]">
-                <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Our Mission</Link></li>
-                <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">History</Link></li>
-                <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Leadership</Link></li>
-                <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Global Network</Link></li>
-                <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Contact Us</Link></li>
+                <li><Link href="/about" className="hover:text-[--color-navy] hover:underline transition-colors">Our Mission</Link></li>
+                <li><Link href="/about" className="hover:text-[--color-navy] hover:underline transition-colors">History</Link></li>
+                <li><Link href="/execom" className="hover:text-[--color-navy] hover:underline transition-colors">Leadership</Link></li>
+                <li><Link href="/achievements" className="hover:text-[--color-navy] hover:underline transition-colors">Achievements</Link></li>
+                <li><Link href="/contact" className="hover:text-[--color-navy] hover:underline transition-colors">Contact Us</Link></li>
               </ul>
               <ul className="space-y-3 text-sm text-[--color-muted]">
                 <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Careers</Link></li>
                 <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Newsroom</Link></li>
-                <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Annual Report</Link></li>
+                <li><Link href="/gallery" className="hover:text-[--color-navy] hover:underline transition-colors">Media Gallery</Link></li>
                 <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Brand Guidelines</Link></li>
               </ul>
             </div>
@@ -38,9 +38,9 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3 text-sm text-[--color-muted]">
               <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Join or Renew</Link></li>
-              <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Explore Societies</Link></li>
+              <li><Link href="/events" className="hover:text-[--color-navy] hover:underline transition-colors">Events & Workshops</Link></li>
+              <li><Link href="/societies" className="hover:text-[--color-navy] hover:underline transition-colors">Explore Societies</Link></li>
               <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Digital Library</Link></li>
-              <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Standards Association</Link></li>
               <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Spectrum Magazine</Link></li>
             </ul>
           </div>

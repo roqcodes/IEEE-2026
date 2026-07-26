@@ -56,16 +56,13 @@ export default async function EventDetailPage({
     <>
       {/* ── Header band ── */}
       <section
-        className="py-14 sm:py-20"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--color-ieee-blue-dark) 0%, var(--color-ieee-blue) 100%)",
-        }}
+        className="py-16 sm:py-24"
+        style={{ background: "linear-gradient(135deg, var(--color-navy-light) 0%, #4B2E83 100%)" }}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 text-blue-200 text-sm mb-6 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-white/80 text-sm font-bold tracking-widest uppercase mb-8 hover:text-white transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
@@ -73,50 +70,41 @@ export default async function EventDetailPage({
             Back to Events
           </Link>
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold capitalize">
+          <div className="flex flex-wrap gap-2 mb-6">
+            <span className="px-4 py-1 border-2 border-[--color-gold] text-[--color-gold] text-xs font-bold uppercase tracking-widest">
               {event.category}
             </span>
-            <span
-              className="px-3 py-1 rounded-full text-white text-xs font-semibold"
-              style={{
-                background:
-                  event.status === "upcoming"
-                    ? "rgba(255,255,255,0.2)"
-                    : "rgba(0,0,0,0.2)",
-              }}
-            >
+            <span className="px-4 py-1 border-2 border-white/40 text-white text-xs font-bold uppercase tracking-widest">
               {event.status === "upcoming" ? "Upcoming" : "Past Event"}
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-serif text-white leading-tight">
             {event.title}
           </h1>
         </div>
       </section>
 
       {/* ── Body ── */}
-      <section className="py-14 bg-white">
+      <section className="py-24 bg-[#FAFAFA]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-12">
             {/* ─ Main content ─ */}
-            <article className="md:col-span-2 space-y-6">
-              <p className="text-lg text-[--color-slate] leading-relaxed">
+            <article className="md:col-span-2 space-y-8">
+              <p className="text-lg text-[--color-charcoal] leading-relaxed">
                 {event.body ?? event.description}
               </p>
 
               {event.status === "upcoming" && event.registrationLink && (
-                <div className="pt-4">
+                <div className="pt-6">
                   <a
                     href={event.registrationLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-white font-bold text-base transition-colors"
-                    style={{ background: "var(--color-ieee-blue)" }}
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-[--color-navy] border-2 border-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:border-[--color-gold] transition-colors"
                   >
-                    Register Now
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                    REGISTER NOW
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </a>
@@ -126,14 +114,15 @@ export default async function EventDetailPage({
 
             {/* ─ Info sidebar ─ */}
             <aside>
-              <div className="rounded-xl border border-[--color-border] bg-[--color-surface] p-6 space-y-5 sticky top-20">
-                <h2 className="font-bold text-[--color-navy] text-lg">
+              <div className="border border-[--color-border] bg-white p-8 space-y-6 sticky top-32 shadow-sm">
+                <h2 className="font-bold font-serif text-[--color-navy] text-2xl">
                   Event Details
                 </h2>
-                <dl className="space-y-4 text-sm">
+                <div className="tick-mark"></div>
+                <dl className="space-y-6 text-sm">
                   <div>
-                    <dt className="text-[--color-muted] font-medium mb-0.5">Date</dt>
-                    <dd className="text-[--color-charcoal] font-semibold">
+                    <dt className="text-[--color-muted] font-bold text-xs tracking-widest uppercase mb-1">Date</dt>
+                    <dd className="text-[--color-charcoal] text-base">
                       {formatDate(event.date)}
                       {event.endDate && event.endDate !== event.date && (
                         <> &ndash; {formatDate(event.endDate)}</>
@@ -141,18 +130,18 @@ export default async function EventDetailPage({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[--color-muted] font-medium mb-0.5">Location</dt>
-                    <dd className="text-[--color-charcoal] font-semibold">{event.location}</dd>
+                    <dt className="text-[--color-muted] font-bold text-xs tracking-widest uppercase mb-1">Location</dt>
+                    <dd className="text-[--color-charcoal] text-base">{event.location}</dd>
                   </div>
                   <div>
-                    <dt className="text-[--color-muted] font-medium mb-0.5">Category</dt>
-                    <dd className="capitalize text-[--color-charcoal] font-semibold">
+                    <dt className="text-[--color-muted] font-bold text-xs tracking-widest uppercase mb-1">Category</dt>
+                    <dd className="uppercase text-[--color-charcoal] text-base">
                       {event.category}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[--color-muted] font-medium mb-0.5">Status</dt>
-                    <dd className="capitalize text-[--color-charcoal] font-semibold">
+                    <dt className="text-[--color-muted] font-bold text-xs tracking-widest uppercase mb-1">Status</dt>
+                    <dd className="uppercase text-[--color-charcoal] text-base">
                       {event.status}
                     </dd>
                   </div>

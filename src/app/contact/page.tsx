@@ -1,17 +1,4 @@
 "use client";
-/**
- * Contact Page — /contact
- * Client Component for form state management.
- *
- * Sections:
- *   - Page header
- *   - Two-column layout: contact form | contact info
- *   - Office hours & address
- *
- * Note: Form submission currently logs to console.
- * Wire up to a Route Handler (app/api/contact/route.ts) or
- * an email service (Resend, EmailJS) when ready.
- */
 
 import { useState, FormEvent } from "react";
 import PageHeader from "@/components/PageHeader";
@@ -60,34 +47,34 @@ export default function ContactPage() {
         subtitle="Have a question, suggestion, or want to collaborate? We'd love to hear from you."
       />
 
-      <section className="py-16 bg-white" aria-label="Contact section">
+      <section className="py-24 bg-[#FAFAFA]" aria-label="Contact section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-5 gap-12">
+          <div className="grid lg:grid-cols-5 gap-16">
 
             {/* ── Contact Form (col 3) ── */}
             <div className="lg:col-span-3">
-              <h2 className="text-2xl font-bold text-[--color-navy] mb-6">
+              <h2 className="text-3xl font-bold font-serif text-[--color-navy] mb-8">
                 Send Us a Message
               </h2>
 
               {status === "success" ? (
-                <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center" role="alert">
-                  <div className="text-4xl mb-3">✅</div>
-                  <h3 className="text-lg font-bold text-green-800 mb-1">Message Sent!</h3>
-                  <p className="text-green-700 text-sm">We&apos;ll get back to you within 24 hours.</p>
+                <div className="border-l-4 border-[--color-gold] bg-white p-8 shadow-sm" role="alert">
+                  <div className="text-4xl mb-4 text-[--color-navy]">✅</div>
+                  <h3 className="text-xl font-bold font-serif text-[--color-navy] mb-2">Message Sent!</h3>
+                  <p className="text-[--color-charcoal] text-sm mb-6">We&apos;ll get back to you within 24 hours.</p>
                   <button
-                    className="mt-5 text-sm font-semibold text-green-700 underline"
+                    className="text-xs font-bold uppercase tracking-widest text-[--color-navy] hover:text-[--color-gold] transition-colors"
                     onClick={() => setStatus("idle")}
                   >
-                    Send another message
+                    SEND ANOTHER MESSAGE
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                   {/* Name + Email */}
-                  <div className="grid sm:grid-cols-2 gap-5">
+                  <div className="grid sm:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-[--color-charcoal] mb-1.5">
+                      <label htmlFor="name" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
                         Full Name <span aria-hidden="true" className="text-red-500">*</span>
                       </label>
                       <input
@@ -98,11 +85,11 @@ export default function ContactPage() {
                         value={form.name}
                         onChange={handleChange}
                         placeholder="Your name"
-                        className="w-full px-4 py-2.5 rounded-lg border border-[--color-border] bg-[--color-surface] text-sm text-[--color-charcoal] placeholder-[--color-muted] focus:outline-none focus:ring-2 focus:ring-[--color-ieee-blue] focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] placeholder-[--color-muted] focus:outline-none focus:border-[--color-navy] transition"
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-[--color-charcoal] mb-1.5">
+                      <label htmlFor="email" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
                         Email Address <span aria-hidden="true" className="text-red-500">*</span>
                       </label>
                       <input
@@ -113,14 +100,14 @@ export default function ContactPage() {
                         value={form.email}
                         onChange={handleChange}
                         placeholder="you@example.com"
-                        className="w-full px-4 py-2.5 rounded-lg border border-[--color-border] bg-[--color-surface] text-sm text-[--color-charcoal] placeholder-[--color-muted] focus:outline-none focus:ring-2 focus:ring-[--color-ieee-blue] focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] placeholder-[--color-muted] focus:outline-none focus:border-[--color-navy] transition"
                       />
                     </div>
                   </div>
 
                   {/* Subject */}
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-[--color-charcoal] mb-1.5">
+                    <label htmlFor="subject" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
                       Subject <span aria-hidden="true" className="text-red-500">*</span>
                     </label>
                     <select
@@ -129,7 +116,7 @@ export default function ContactPage() {
                       required
                       value={form.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-lg border border-[--color-border] bg-[--color-surface] text-sm text-[--color-charcoal] focus:outline-none focus:ring-2 focus:ring-[--color-ieee-blue] focus:border-transparent transition"
+                      className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] focus:outline-none focus:border-[--color-navy] transition appearance-none rounded-none"
                     >
                       <option value="">Select a subject…</option>
                       <option value="membership">IEEE Membership</option>
@@ -143,7 +130,7 @@ export default function ContactPage() {
 
                   {/* Message */}
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-[--color-charcoal] mb-1.5">
+                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
                       Message <span aria-hidden="true" className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -154,29 +141,28 @@ export default function ContactPage() {
                       value={form.message}
                       onChange={handleChange}
                       placeholder="Tell us how we can help…"
-                      className="w-full px-4 py-2.5 rounded-lg border border-[--color-border] bg-[--color-surface] text-sm text-[--color-charcoal] placeholder-[--color-muted] resize-y focus:outline-none focus:ring-2 focus:ring-[--color-ieee-blue] focus:border-transparent transition"
+                      className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] placeholder-[--color-muted] resize-y focus:outline-none focus:border-[--color-navy] transition"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={status === "sending"}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-lg text-white font-bold text-sm transition-opacity disabled:opacity-70"
-                    style={{ background: "var(--color-ieee-blue)" }}
+                    className="w-full sm:w-auto px-10 py-4 bg-[--color-navy] border-2 border-[--color-navy] text-white font-bold text-xs tracking-widest uppercase transition-colors hover:bg-[--color-gold] hover:border-[--color-gold] disabled:opacity-70 disabled:hover:bg-[--color-navy] disabled:hover:border-[--color-navy]"
                   >
-                    {status === "sending" ? "Sending…" : "Send Message"}
+                    {status === "sending" ? "SENDING…" : "SEND MESSAGE"}
                   </button>
                 </form>
               )}
             </div>
 
             {/* ── Contact Info (col 2) ── */}
-            <aside className="lg:col-span-2 space-y-8">
+            <aside className="lg:col-span-2 space-y-10">
               <div>
-                <h2 className="text-2xl font-bold text-[--color-navy] mb-6">
+                <h2 className="text-3xl font-bold font-serif text-[--color-navy] mb-8">
                   Get in Touch
                 </h2>
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <ContactItem
                     icon={
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -201,17 +187,17 @@ export default function ContactPage() {
               </div>
 
               {/* Office hours */}
-              <div className="rounded-xl border border-[--color-border] bg-[--color-surface] p-6">
-                <h3 className="font-bold text-[--color-navy] mb-4">Office Hours</h3>
-                <dl className="space-y-2 text-sm">
+              <div className="border border-[--color-border] bg-white p-8 shadow-sm">
+                <h3 className="font-bold font-serif text-[--color-navy] text-xl mb-6">Office Hours</h3>
+                <dl className="space-y-3 text-sm">
                   {[
                     { day: "Monday – Friday", time: "10:00 AM – 5:00 PM" },
                     { day: "Saturday",        time: "10:00 AM – 1:00 PM" },
                     { day: "Sunday",          time: "Closed" },
                   ].map((h) => (
                     <div key={h.day} className="flex justify-between gap-4">
-                      <dt className="text-[--color-slate]">{h.day}</dt>
-                      <dd className="font-medium text-[--color-charcoal]">{h.time}</dd>
+                      <dt className="text-[--color-charcoal]">{h.day}</dt>
+                      <dd className="font-bold text-[--color-navy]">{h.time}</dd>
                     </div>
                   ))}
                 </dl>
@@ -219,8 +205,8 @@ export default function ContactPage() {
 
               {/* Social links */}
               <div>
-                <h3 className="font-bold text-[--color-navy] mb-4">Follow Us</h3>
-                <div className="flex flex-wrap gap-3">
+                <h3 className="font-bold font-serif text-[--color-navy] text-xl mb-6">Follow Us</h3>
+                <div className="flex flex-wrap gap-4">
                   {socialLinks.map((s) => (
                     <a
                       key={s.label}
@@ -228,8 +214,7 @@ export default function ContactPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`IEEE CUSAT on ${s.label}`}
-                      className="px-4 py-2 rounded-lg border border-[--color-border] text-sm font-medium text-[--color-slate] hover:border-current transition-colors"
-                      style={{ ["--hover-color" as string]: s.color }}
+                      className="px-5 py-2 border border-[--color-border] bg-white text-xs font-bold tracking-widest uppercase text-[--color-navy] hover:border-[--color-navy] hover:bg-[--color-navy] hover:text-white transition-colors"
                     >
                       {s.label}
                     </a>
@@ -257,27 +242,26 @@ function ContactItem({
   href?: string;
 }) {
   return (
-    <div className="flex gap-4 items-start">
+    <div className="flex gap-5 items-start">
       <div
-        className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-white"
-        style={{ background: "var(--color-ieee-blue)" }}
+        className="flex-shrink-0 w-12 h-12 flex items-center justify-center text-white bg-[--color-navy]"
         aria-hidden="true"
       >
         {icon}
       </div>
       <div>
-        <p className="text-xs text-[--color-muted] font-medium uppercase tracking-wider">
+        <p className="text-xs font-bold uppercase tracking-widest text-[--color-muted] mb-1">
           {label}
         </p>
         {href ? (
           <a
             href={href}
-            className="text-sm font-semibold text-[--color-ieee-blue] hover:underline mt-0.5 block"
+            className="text-base font-bold text-[--color-charcoal] hover:text-[--color-navy] transition-colors block"
           >
             {value}
           </a>
         ) : (
-          <p className="text-sm text-[--color-charcoal] mt-0.5">{value}</p>
+          <p className="text-base text-[--color-charcoal]">{value}</p>
         )}
       </div>
     </div>

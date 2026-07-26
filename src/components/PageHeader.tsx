@@ -1,7 +1,7 @@
 /**
  * PageHeader — reusable section header used at the top of inner pages.
  * Provides a consistent breadcrumb + title + subtitle layout
- * on an ieee-blue gradient background.
+ * on a navy-to-purple gradient background.
  */
 
 interface PageHeaderProps {
@@ -14,23 +14,22 @@ interface PageHeaderProps {
 export default function PageHeader({ breadcrumb, title, subtitle }: PageHeaderProps) {
   return (
     <section
-      className="py-14 sm:py-20"
+      className="py-16 sm:py-24"
       style={{
-        background:
-          "linear-gradient(135deg, var(--color-ieee-blue-dark) 0%, var(--color-ieee-blue) 100%)",
+        background: "linear-gradient(135deg, var(--color-navy-light) 0%, #4B2E83 100%)",
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {breadcrumb && (
-          <p className="text-sm text-blue-200 uppercase tracking-widest font-medium mb-2">
+          <p className="text-sm text-[--color-gold] uppercase tracking-widest font-bold mb-4">
             {breadcrumb}
           </p>
         )}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white font-serif leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-4 text-lg text-blue-100 max-w-2xl leading-relaxed">
+          <p className="mt-6 text-lg text-white/80 max-w-3xl leading-relaxed">
             {subtitle}
           </p>
         )}

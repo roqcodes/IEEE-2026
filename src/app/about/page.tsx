@@ -1,12 +1,3 @@
-/**
- * About Page — /about
- * Sections:
- *   - Page header
- *   - What is IEEE?
- *   - About IEEE CUSAT SB (mission, vision, history)
- *   - Branch structure overview
- */
-
 import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
@@ -55,21 +46,22 @@ export default function AboutPage() {
       />
 
       {/* ── What is IEEE? ── */}
-      <section className="py-20 bg-white" aria-labelledby="ieee-heading">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+      <section className="py-24 bg-white" aria-labelledby="ieee-heading">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--color-ieee-blue)" }}>
+            <p className="text-sm font-bold uppercase tracking-widest mb-4 text-[--color-gold]">
               The Global Organization
             </p>
-            <h2 id="ieee-heading" className="text-3xl sm:text-4xl font-bold text-[--color-navy]">
+            <div className="tick-mark mb-6"></div>
+            <h2 id="ieee-heading" className="text-4xl font-bold font-serif text-[--color-navy]">
               What is IEEE?
             </h2>
-            <p className="mt-5 text-[--color-slate] leading-relaxed text-lg">
+            <p className="mt-6 text-[--color-charcoal] leading-relaxed text-lg">
               IEEE — the Institute of Electrical and Electronics Engineers — is
               the world&apos;s largest technical professional organization, with
               over <strong>400,000 members</strong> in more than 160 countries.
             </p>
-            <p className="mt-4 text-[--color-slate] leading-relaxed">
+            <p className="mt-4 text-[--color-muted] leading-relaxed">
               It advances technology for the benefit of humanity through
               publishing, conferences, standards development, and educational
               programs. IEEE&apos;s technical interests span computing, electronics,
@@ -79,10 +71,9 @@ export default function AboutPage() {
               href="https://www.ieee.org/about/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-6 text-sm font-semibold"
-              style={{ color: "var(--color-ieee-blue)" }}
+              className="inline-flex items-center gap-2 mt-8 px-6 py-2 border-2 border-[--color-navy] text-[--color-navy] font-bold text-xs tracking-widest uppercase hover:bg-[--color-navy] hover:text-white transition-colors"
             >
-              Learn more at ieee.org
+              LEARN MORE AT IEEE.ORG
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
@@ -90,7 +81,7 @@ export default function AboutPage() {
           </div>
 
           {/* Quick facts */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             {[
               { value: "400K+", label: "Global Members" },
               { value: "160+", label: "Countries" },
@@ -99,12 +90,12 @@ export default function AboutPage() {
             ].map((fact) => (
               <div
                 key={fact.label}
-                className="rounded-xl border border-[--color-border] bg-[--color-surface] p-6 text-center"
+                className="border border-[--color-border] bg-[--color-surface-cream] p-8 text-center shadow-sm"
               >
-                <p className="text-3xl font-bold" style={{ color: "var(--color-ieee-blue)" }}>
+                <p className="text-4xl font-bold text-[--color-navy]">
                   {fact.value}
                 </p>
-                <p className="text-sm text-[--color-muted] mt-1">{fact.label}</p>
+                <p className="text-sm font-bold tracking-widest uppercase text-black mt-2">{fact.label}</p>
               </div>
             ))}
           </div>
@@ -113,26 +104,27 @@ export default function AboutPage() {
 
       {/* ── Mission / Vision / Values ── */}
       <section
-        className="py-20 bg-[--color-surface]"
+        className="py-24 bg-[#FAFAFA]"
         aria-labelledby="mvv-heading"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 id="mvv-heading" className="text-3xl sm:text-4xl font-bold text-[--color-navy]">
+          <div className="text-center mb-16 flex flex-col items-center">
+            <h2 id="mvv-heading" className="text-4xl font-bold font-serif text-[--color-navy] mb-6">
               Our Mission & Vision
             </h2>
+            <div className="tick-mark-diagonal"></div>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {values.map((v) => (
               <div
                 key={v.title}
-                className="bg-white rounded-xl border border-[--color-border] p-8 shadow-sm"
+                className="bg-white border border-[--color-border] p-10 shadow-sm hover:shadow-xl transition-shadow"
               >
-                <div className="text-4xl mb-4">{v.icon}</div>
-                <h3 className="text-xl font-bold text-[--color-navy] mb-3">
+                <div className="text-4xl mb-6">{v.icon}</div>
+                <h3 className="text-2xl font-bold font-serif text-[--color-navy] mb-4">
                   {v.title}
                 </h3>
-                <p className="text-[--color-slate] leading-relaxed">{v.text}</p>
+                <p className="text-[--color-muted] leading-relaxed">{v.text}</p>
               </div>
             ))}
           </div>
@@ -140,34 +132,32 @@ export default function AboutPage() {
       </section>
 
       {/* ── History Timeline ── */}
-      <section className="py-20 bg-white" aria-labelledby="history-heading">
+      <section className="py-24 bg-white" aria-labelledby="history-heading">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-ieee-blue)" }}>
+          <div className="text-center mb-16">
+            <p className="text-sm font-bold uppercase tracking-widest mb-4 text-[--color-gold]">
               Our Journey
             </p>
-            <h2 id="history-heading" className="text-3xl sm:text-4xl font-bold text-[--color-navy]">
+            <h2 id="history-heading" className="text-4xl font-bold font-serif text-[--color-navy]">
               A Legacy of Excellence
             </h2>
           </div>
 
-          <ol className="relative border-l-2 border-[--color-border] ml-4 space-y-8" aria-label="Branch history timeline">
+          <ol className="relative border-l-[3px] border-[--color-navy] ml-4 space-y-10" aria-label="Branch history timeline">
             {timeline.map((item) => (
-              <li key={item.year} className="ml-8">
-                {/* Dot */}
+              <li key={item.year} className="ml-10">
+                {/* Square Dot */}
                 <span
-                  className="absolute -left-[11px] flex items-center justify-center w-5 h-5 rounded-full ring-4 ring-white"
-                  style={{ background: "var(--color-ieee-blue)" }}
+                  className="absolute -left-[11px] flex items-center justify-center w-5 h-5 bg-[--color-gold] border-4 border-white"
                   aria-hidden="true"
                 />
                 <time
                   dateTime={item.year}
-                  className="block text-xs font-bold uppercase tracking-widest mb-1"
-                  style={{ color: "var(--color-ieee-blue)" }}
+                  className="block text-sm font-bold uppercase tracking-widest mb-2 text-[--color-navy]"
                 >
                   {item.year}
                 </time>
-                <p className="text-[--color-slate] leading-relaxed">{item.event}</p>
+                <p className="text-[--color-muted] text-lg leading-relaxed">{item.event}</p>
               </li>
             ))}
           </ol>
@@ -176,15 +166,16 @@ export default function AboutPage() {
 
       {/* ── Structure overview ── */}
       <section
-        className="py-20 bg-[--color-surface]"
+        className="py-24 bg-[--color-surface-blue]"
         aria-labelledby="structure-heading"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 id="structure-heading" className="text-3xl sm:text-4xl font-bold text-[--color-navy]">
+          <div className="text-center mb-16 flex flex-col items-center">
+            <h2 id="structure-heading" className="text-4xl font-bold font-serif text-[--color-navy] mb-6">
               Branch Structure
             </h2>
-            <p className="mt-3 text-[--color-muted] max-w-xl mx-auto">
+            <div className="tick-mark-diagonal mb-6"></div>
+            <p className="text-[--color-muted] max-w-xl mx-auto text-lg">
               We operate under the IEEE Kerala Section and are organized into
               an executive committee and multiple technical chapters.
             </p>
@@ -193,15 +184,15 @@ export default function AboutPage() {
             {["IEEE Kerala Section", "IEEE CUSAT Student Branch", "Executive Committee", "Technical Chapters", "Affinity Groups", "Student Members"].map((node) => (
               <span
                 key={node}
-                className="px-4 py-2 rounded-full border border-[--color-border] bg-white text-sm font-medium text-[--color-navy] shadow-sm"
+                className="px-6 py-3 border-2 border-[--color-navy] bg-white text-sm font-bold uppercase tracking-widest text-[--color-navy] shadow-sm"
               >
                 {node}
               </span>
             ))}
           </div>
-          <div className="mt-10 text-center">
-            <Link href="/execom" className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--color-ieee-blue)" }}>
-              Meet the Executive Committee
+          <div className="mt-12 text-center">
+            <Link href="/execom" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:border-[--color-gold] transition-colors">
+              MEET THE EXECUTIVE COMMITTEE
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
