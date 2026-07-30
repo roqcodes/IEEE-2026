@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function HomeHero() {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -10,27 +11,32 @@ export default function HomeHero() {
     {
       title: "Be a Part of Something Bigger.",
       subtitle: "Join the world's largest technical professional organization.",
-      linkText: "> Join Now"
+      linkText: "> Join Now",
+      href: "/join"
     },
     {
       title: "Innovate with Us.",
       subtitle: "Discover the latest in engineering and technology.",
-      linkText: "> Explore"
+      linkText: "> Explore",
+      href: "/about"
     },
     {
       title: "Advance Your Career.",
       subtitle: "Unlock exclusive resources and networking opportunities.",
-      linkText: "> Learn More"
+      linkText: "> Learn More",
+      href: "/events"
     },
     {
       title: "Lead the Future.",
       subtitle: "Volunteer and shape the next generation of standards.",
-      linkText: "> Volunteer"
+      linkText: "> Volunteer",
+      href: "/societies"
     },
     {
       title: "Connect Globally.",
       subtitle: "Engage with professionals across 160 countries.",
-      linkText: "> Connect"
+      linkText: "> Connect",
+      href: "/contact"
     }
   ];
 
@@ -65,9 +71,9 @@ export default function HomeHero() {
               {currentSlide.subtitle}
             </p>
             <div className="flex items-center justify-between">
-              <a href="#" className="font-bold text-[--color-navy] hover:text-[--color-gold] transition-colors">
+              <Link href={currentSlide.href} className="font-bold text-[--color-navy] hover:text-[--color-gold] transition-colors">
                 {currentSlide.linkText}
-              </a>
+              </Link>
               
               {/* Controls */}
               <div className="flex items-center gap-4">

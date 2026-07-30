@@ -24,30 +24,6 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-300">
-      {/* ── 1. Top Utility Bar ── */}
-      <div className="hidden lg:block w-full bg-[#FAFAFA] border-b border-[--color-border] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center justify-between text-[13px]">
-          {/* Left links */}
-          <div className="flex items-center gap-6 text-[--color-muted] h-full relative">
-            <Link href="#" className="hover:text-[--color-navy] transition-colors">Site.org</Link>
-            <Link href="#" className="hover:text-[--color-navy] transition-colors">Xplore</Link>
-            <Link href="#" className="hover:text-[--color-navy] transition-colors">Standards</Link>
-            <Link href="#" className="hover:text-[--color-navy] transition-colors">Spectrum</Link>
-            <Link href="#" className="hover:text-[--color-navy] transition-colors">Sites</Link>
-            {/* Accent underline under left section */}
-            <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-[--color-gold]"></div>
-          </div>
-          {/* Right links */}
-          <div className="flex items-center gap-6">
-            <Link href="#" className="text-[--color-muted] hover:text-[--color-navy] transition-colors">Join</Link>
-            <Link href="#" className="text-[--color-muted] hover:text-[--color-navy] transition-colors">Donate</Link>
-            <Link href="#" className="text-[--color-muted] hover:text-[--color-navy] transition-colors">Cart (0)</Link>
-            <Link href="#" className="text-[--color-navy] font-bold hover:text-[--color-gold] transition-colors">Create Account</Link>
-            <Link href="#" className="text-[--color-navy] font-bold hover:text-[--color-gold] transition-colors">Sign In</Link>
-          </div>
-        </div>
-      </div>
-
       {/* ── 2. Main Header ── */}
       <nav
         className={`w-full transition-colors duration-300 ${
