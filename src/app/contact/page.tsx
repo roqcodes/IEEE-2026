@@ -11,10 +11,10 @@ interface FormData {
 }
 
 const socialLinks = [
-  { label: "LinkedIn",   href: "https://linkedin.com",  color: "#0a66c2" },
-  { label: "Instagram",  href: "https://instagram.com", color: "#e1306c" },
-  { label: "Twitter/X",  href: "https://x.com",        color: "#000" },
-  { label: "YouTube",    href: "https://youtube.com",   color: "#ff0000" },
+  { label: "LinkedIn", href: "https://linkedin.com", color: "#0a66c2" },
+  { label: "Instagram", href: "https://instagram.com", color: "#e1306c" },
+  { label: "Twitter/X", href: "https://x.com", color: "#000" },
+  { label: "YouTube", href: "https://youtube.com", color: "#ff0000" },
 ];
 
 export default function ContactPage() {
@@ -193,8 +193,8 @@ export default function ContactPage() {
                 <dl className="space-y-3 text-sm">
                   {[
                     { day: "Monday – Friday", time: "10:00 AM – 5:00 PM" },
-                    { day: "Saturday",        time: "10:00 AM – 1:00 PM" },
-                    { day: "Sunday",          time: "Closed" },
+                    { day: "Saturday", time: "10:00 AM – 1:00 PM" },
+                    { day: "Sunday", time: "Closed" },
                   ].map((h) => (
                     <div key={h.day} className="flex justify-between gap-4">
                       <dt className="text-[--color-charcoal]">{h.day}</dt>

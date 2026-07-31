@@ -25,11 +25,34 @@ export default function EventsPage() {
 
   return (
     <>
-      <PageHeader
-        breadcrumb="Activities"
-        title="Events"
-        subtitle="Workshops, competitions, seminars, and more — there's always something happening at IEEE CUSAT."
-      />
+      <style>{`
+        @keyframes slideDownBar {
+          from { transform: scaleY(0); transform-origin: top; opacity: 0; }
+          to { transform: scaleY(1); transform-origin: top; opacity: 1; }
+        }
+        @keyframes slideRightLine {
+          from { transform: scaleX(0); transform-origin: left; opacity: 0; }
+          to { transform: scaleX(1); transform-origin: left; opacity: 1; }
+        }
+        .animate-bar-down { animation: slideDownBar 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        .animate-line-right { animation: slideRightLine 3.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards; opacity: 0; }
+      `}</style>
+      <div className="relative">
+        <div 
+          className="absolute top-20 left-0 bottom-0 w-6 md:w-8 lg:w-12 bg-[#00A97E] z-40 shadow-[4px_0_15px_rgba(0,0,0,0.1)] animate-bar-down"
+          style={{ borderBottomRightRadius: '16px' }}
+          aria-hidden="true"
+        />
+        <div 
+          className="absolute top-20 left-0 w-full h-[6px] bg-[#00A97E] z-40 animate-line-right"
+          aria-hidden="true"
+        />
+        <PageHeader
+          breadcrumb="Activities"
+          title="Events"
+          subtitle="Workshops, competitions, seminars, and more — there's always something happening at IEEE CUSAT."
+        />
+      </div>
 
       <section className="relative border-t border-gray-200 py-24" aria-label="Events listing">
         <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
