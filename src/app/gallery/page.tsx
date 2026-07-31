@@ -42,7 +42,7 @@ export default function GalleryPage() {
       <div className="relative">
         {/* Decorative Left Bar */}
         <div 
-          className="absolute top-20 left-0 bottom-0 w-6 md:w-8 lg:w-12 bg-[#F2A900] z-40 shadow-[4px_0_15px_rgba(0,0,0,0.1)] animate-bar-down"
+          className="absolute top-20 left-0 bottom-0 w-3 md:w-8 lg:w-12 bg-[#F2A900] z-40 shadow-[4px_0_15px_rgba(0,0,0,0.1)] animate-bar-down"
           style={{ borderBottomRightRadius: '16px' }}
           aria-hidden="true"
         />
