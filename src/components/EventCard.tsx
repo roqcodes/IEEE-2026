@@ -18,96 +18,89 @@ const categoryColors: Record<Event["category"], string> = {
   other:       "#718096",
 };
 
+const sampleImages: Record<Event["category"], string> = {
+  workshop:    "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80",
+  seminar:     "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80",
+  competition: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80",
+  social:      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",
+  other:       "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+};
+
 interface EventCardProps {
   event: Event;
   compact?: boolean;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+function formatDateStr(iso: string) {
+  const date = new Date(iso);
+  const month = date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  const day = date.toLocaleDateString("en-US", { day: "2-digit" });
+  return { month, day };
 }
 
 export default function EventCard({ event, compact = false }: EventCardProps) {
   const accentColor = categoryColors[event.category];
+  const { month, day } = formatDateStr(event.date);
 
   return (
-    <article className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-[--color-surface-cream] border border-[--color-border]">
-      {/* ── Image placeholder ── */}
+    <article className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-white border border-[--color-border] h-full rounded-[32px] overflow-hidden">
+      {/* ── Event Image ── */}
       <div
-        className="w-full relative overflow-hidden flex-shrink-0"
-        style={{ height: compact ? "140px" : "200px", background: "#e6f2fa" }}
+        className="w-full relative overflow-hidden flex-shrink-0 bg-gray-100"
+        style={{ height: compact ? "160px" : "220px" }}
       >
-        {/* Decorative gradient fill */}
-        <div
-          className="absolute inset-0 flex items-center justify-center text-white/30"
-          style={{
-            background: `linear-gradient(135deg, ${accentColor}33 0%, ${accentColor}66 100%)`,
-          }}
-          aria-hidden="true"
-        >
-          <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={sampleImages[event.category]}
+          alt={event.title}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        {/* Overlay gradient for styling */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
       </div>
 
       {/* ── Body ── */}
-      <div className="flex flex-col flex-1 p-6 lg:p-8 bg-[--color-surface-cream]">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="text-black font-bold text-xs uppercase tracking-widest">{event.category}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-black font-bold text-xs uppercase tracking-widest">
-            {event.status === "upcoming" ? "UPCOMING" : "PAST"}
-          </span>
+      <div className="flex flex-row flex-1 p-6 lg:p-8 bg-white gap-6">
+        {/* Left: Date */}
+        <div className="flex flex-col items-center justify-start pt-1">
+          <span className="text-[--color-navy] font-bold text-sm uppercase tracking-widest">{month}</span>
+          <span className="text-[--color-navy] font-bold text-4xl mt-1">{day}</span>
         </div>
 
-        <h3 className={`text-black font-bold leading-tight line-clamp-2 mb-4 ${compact ? "text-xl" : "text-2xl"}`}>
-          {event.title}
-        </h3>
-
-        <div className="flex flex-wrap items-center gap-3 text-sm text-[--color-muted] mb-6">
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            {formatDate(event.date)}
-          </span>
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+        {/* Right: Content */}
+        <div className="flex flex-col flex-1">
+          <div className="flex items-center gap-1 text-[--color-muted] text-xs font-bold uppercase tracking-widest mb-3">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             {event.location}
-          </span>
-        </div>
+          </div>
 
-        <p className="text-[--color-muted] text-sm line-clamp-3 leading-relaxed flex-1 mb-6">
-          {event.description}
-        </p>
+          <h3 className={`text-[--color-navy] font-bold leading-tight line-clamp-2 mb-3 ${compact ? "text-xl" : "text-2xl"}`}>
+            {event.title}
+          </h3>
 
-        {/* CTA */}
-        <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <Link
-            href={`/events/${event.slug}`}
-            className="inline-flex items-center justify-center px-6 py-2 border-2 border-[--color-navy] text-[--color-navy] font-bold text-xs tracking-widest uppercase hover:bg-[--color-navy] hover:text-white transition-colors"
-            aria-label={`View details for ${event.title}`}
-          >
-            VIEW DETAILS
-          </Link>
-          {event.status === "upcoming" && event.registrationLink && (
-            <a
-              href={event.registrationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-6 py-2 bg-[--color-navy] border-2 border-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:border-[--color-gold] transition-colors"
+          <p className="text-[--color-muted] text-sm line-clamp-2 leading-relaxed flex-1 mb-4">
+            {event.description}
+          </p>
+
+          <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[--color-navy]">
+              <svg className="w-4 h-4 text-[--color-gold]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {event.status === "live" ? "Live Now" : event.status === "upcoming" ? "Upcoming Event" : "Past Event"}
+            </div>
+            
+            <Link
+              href={`/events/${event.slug}`}
+              className="inline-flex items-center justify-center text-[--color-navy] font-bold text-xs tracking-widest uppercase hover:text-[--color-gold] transition-colors"
+              aria-label={`View details for ${event.title}`}
             >
-              REGISTER
-            </a>
-          )}
+              DETAILS &rarr;
+            </Link>
+          </div>
         </div>
       </div>
     </article>

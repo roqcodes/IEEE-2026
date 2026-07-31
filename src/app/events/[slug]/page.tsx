@@ -56,9 +56,10 @@ export default async function EventDetailPage({
     <>
       {/* ── Header band ── */}
       <section
-        className="py-16 sm:py-24"
+        className="relative border-t border-gray-200 py-16 sm:py-24"
         style={{ background: "linear-gradient(135deg, var(--color-navy-light) 0%, #4B2E83 100%)" }}
       >
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/events"
@@ -86,7 +87,8 @@ export default async function EventDetailPage({
       </section>
 
       {/* ── Body ── */}
-      <section className="py-24 bg-[#FAFAFA]">
+      <section className="relative border-t border-gray-200 py-24">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
             {/* ─ Main content ─ */}
@@ -118,7 +120,7 @@ export default async function EventDetailPage({
                 <h2 className="font-bold font-serif text-[--color-navy] text-2xl">
                   Event Details
                 </h2>
-                <div className="tick-mark"></div>
+                
                 <dl className="space-y-6 text-sm">
                   <div>
                     <dt className="text-[--color-muted] font-bold text-xs tracking-widest uppercase mb-1">Date</dt>

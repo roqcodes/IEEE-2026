@@ -10,19 +10,21 @@ export default function JoinPage() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-[--color-navy] text-white py-24 px-4 sm:px-6 lg:px-8">
+      <section className="relative border-t border-gray-200 py-24 px-4 sm:px-6 lg:px-8">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">
             Join IEEE CUSAT Student Branch
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl text-[--color-light-gray] leading-relaxed">
+          <p className="text-lg md:text-xl max-w-2xl text-[--color-charcoal] leading-relaxed">
             Become a part of the world's largest technical professional organization for the advancement of technology.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+      <section className="relative border-t border-gray-200 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         {/* Why Join */}
         <div>
           <h2 className="text-2xl font-serif font-bold text-[--color-navy] mb-6">

@@ -5,10 +5,11 @@ import EventCard from "@/components/EventCard";
 import PageHeader from "@/components/PageHeader";
 import { events } from "@/data/events";
 
-type Filter = "upcoming" | "past" | "all";
+type Filter = "upcoming" | "past" | "all" | "live";
 
+const boxColors = ['bg-red-50', 'bg-blue-50', 'bg-green-50', 'bg-yellow-50', 'bg-purple-50', 'bg-pink-50', 'bg-orange-50', 'bg-teal-50'];
 export default function EventsPage() {
-  const [filter, setFilter] = useState<Filter>("upcoming");
+  const [filter, setFilter] = useState<Filter>("all");
 
   const filtered = events.filter((e) => {
     if (filter === "all") return true;
@@ -16,6 +17,7 @@ export default function EventsPage() {
   });
 
   const tabs: { label: string; value: Filter }[] = [
+    { label: "LIVE NOW", value: "live" },
     { label: "UPCOMING", value: "upcoming" },
     { label: "PAST EVENTS", value: "past" },
     { label: "ALL EVENTS", value: "all" },
@@ -29,7 +31,8 @@ export default function EventsPage() {
         subtitle="Workshops, competitions, seminars, and more — there's always something happening at IEEE CUSAT."
       />
 
-      <section className="py-24 bg-[#FAFAFA]" aria-label="Events listing">
+      <section className="relative border-t border-gray-200 py-24" aria-label="Events listing">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* ── Filter Tabs ── */}
           <div
@@ -46,8 +49,8 @@ export default function EventsPage() {
                 onClick={() => setFilter(tab.value)}
                 className={`px-8 py-3 border-2 border-[--color-navy] text-xs font-bold tracking-widest uppercase transition-colors ${
                   filter === tab.value
-                    ? "bg-[--color-navy] text-white"
-                    : "bg-white text-[--color-navy] hover:bg-[--color-navy] hover:text-white"
+                    ? "bg-[#0A2540] text-white"
+                    : "bg-white text-[--color-navy] hover:bg-[#0A2540] hover:text-white"
                 }`}
               >
                 {tab.label}
@@ -62,7 +65,7 @@ export default function EventsPage() {
               role="tabpanel"
               aria-labelledby={`tab-${filter}`}
             >
-              {filtered.map((event) => (
+              {filtered.map((event, idx) => (
                 <EventCard key={event.slug} event={event} />
               ))}
             </div>

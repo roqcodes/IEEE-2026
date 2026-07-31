@@ -18,6 +18,7 @@ const categoryConfig: Record<
   ranking:     { label: "Ranking",     color: "#4B2E83", icon: "📊" },
 };
 
+const boxColors = ['bg-red-50', 'bg-blue-50', 'bg-green-50', 'bg-yellow-50', 'bg-purple-50', 'bg-pink-50', 'bg-orange-50', 'bg-teal-50'];
 export default function AchievementsPage() {
   /* Group by year descending */
   const byYear = achievements.reduce<Record<number, typeof achievements>>(
@@ -41,7 +42,8 @@ export default function AchievementsPage() {
       />
 
       {/* ── Timeline ── */}
-      <section className="py-24 bg-[#FAFAFA]" aria-label="Achievements timeline">
+      <section className="relative border-t border-gray-200 py-24" aria-label="Achievements timeline">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {sortedYears.map((year) => (
             <div key={year} className="mb-20">
@@ -57,7 +59,7 @@ export default function AchievementsPage() {
 
               {/* Achievements for this year */}
               <div className="space-y-6">
-                {byYear[year].map((a) => {
+                {byYear[year].map((a, idx) => {
                   const cfg = categoryConfig[a.category];
                   return (
                     <article

@@ -47,7 +47,8 @@ export default function ContactPage() {
         subtitle="Have a question, suggestion, or want to collaborate? We'd love to hear from you."
       />
 
-      <section className="py-24 bg-[#FAFAFA]" aria-label="Contact section">
+      <section className="relative border-t border-gray-200 py-24" aria-label="Contact section">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-5 gap-16">
 
@@ -214,7 +215,7 @@ export default function ContactPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`IEEE CUSAT on ${s.label}`}
-                      className="px-5 py-2 border border-[--color-border] bg-white text-xs font-bold tracking-widest uppercase text-[--color-navy] hover:border-[--color-navy] hover:bg-[--color-navy] hover:text-white transition-colors"
+                      className="px-5 py-2 border border-[--color-border] bg-white text-xs font-bold tracking-widest uppercase text-[--color-navy] hover:border-[--color-navy] hover:bg-[--color-gold] hover:border-[--color-gold] hover:text-[--color-navy] hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                     >
                       {s.label}
                     </a>

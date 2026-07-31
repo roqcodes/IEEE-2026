@@ -8,6 +8,7 @@ export const metadata: Metadata = {
     "Meet the executive committee of the IEEE CUSAT Student Branch — the team driving our activities and growth.",
 };
 
+const boxColors = ['bg-red-50', 'bg-blue-50', 'bg-green-50', 'bg-yellow-50', 'bg-purple-50', 'bg-pink-50', 'bg-orange-50', 'bg-teal-50'];
 export default function ExecomPage() {
   /* Split leadership (top 2) from rest */
   const leadership = execomMembers.slice(0, 2);
@@ -22,19 +23,20 @@ export default function ExecomPage() {
       />
 
       {/* ── Leadership ── */}
-      <section className="py-24 bg-white" aria-labelledby="leadership-heading">
+      <section className="relative border-t border-gray-200 py-24" aria-labelledby="leadership-heading">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center mb-16 text-center">
             <h2
               id="leadership-heading"
-              className="text-4xl font-bold font-serif text-[--color-navy] mb-6"
+              className="text-[36px] md:text-[42px] font-light font-sans text-black mb-6 text-center"
             >
               Branch Leadership
             </h2>
-            <div className="tick-mark-diagonal"></div>
+            
           </div>
           <div className="flex flex-col md:flex-row justify-center gap-8">
-            {leadership.map((m) => (
+            {leadership.map((m, idx) => (
               <MemberCard key={m.id} member={m} large />
             ))}
           </div>
@@ -43,21 +45,22 @@ export default function ExecomPage() {
 
       {/* ── Core Team ── */}
       <section
-        className="py-24 bg-[#FAFAFA]"
+        className="relative border-t border-gray-200 py-24"
         aria-labelledby="team-heading"
       >
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center mb-16 text-center">
             <h2
               id="team-heading"
-              className="text-4xl font-bold font-serif text-[--color-navy] mb-6"
+              className="text-[36px] md:text-[42px] font-light font-sans text-black mb-6 text-center"
             >
               Core Team
             </h2>
-            <div className="tick-mark-diagonal"></div>
+            
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {team.map((m) => (
+            {team.map((m, idx) => (
               <MemberCard key={m.id} member={m} />
             ))}
           </div>

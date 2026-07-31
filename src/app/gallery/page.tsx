@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import PageHeader from "@/components/PageHeader";
 import { getAllAlbums, getAlbumCategories, type GalleryImage } from "@/data/gallery";
 
+const boxColors = ['bg-red-50', 'bg-blue-50', 'bg-green-50', 'bg-yellow-50', 'bg-purple-50', 'bg-pink-50', 'bg-orange-50', 'bg-teal-50'];
 export default function GalleryPage() {
   const albums = getAllAlbums();
   const categories = ["All", ...getAlbumCategories()];
@@ -32,7 +33,8 @@ export default function GalleryPage() {
         subtitle="Moments from our events, workshops, and celebrations — captured in pixels."
       />
 
-      <section className="py-24 bg-[#FAFAFA]" aria-label="Photo gallery">
+      <section className="relative border-t border-gray-200 py-24" aria-label="Photo gallery">
+        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* ── Category filters ── */}
@@ -46,11 +48,10 @@ export default function GalleryPage() {
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 aria-pressed={activeCategory === cat}
-                className={`px-6 py-2 border-2 border-[--color-navy] text-xs font-bold uppercase tracking-widest transition-colors ${
-                  activeCategory === cat
-                    ? "bg-[--color-navy] text-white"
-                    : "bg-white text-[--color-navy] hover:bg-[--color-navy] hover:text-white"
-                }`}
+                className={`px-8 py-3 border-2 border-[--color-navy] text-xs font-bold uppercase tracking-widest transition-colors ${activeCategory === cat
+                    ? "bg-[#0A2540] text-white"
+                    : "bg-white text-[--color-navy] hover:bg-[#0A2540] hover:text-white"
+                  }`}
               >
                 {cat}
               </button>
@@ -58,13 +59,13 @@ export default function GalleryPage() {
           </div>
 
           {/* ── Albums ── */}
-          {filtered.map((album) => (
+          {filtered.map((album, idx) => (
             <div key={album.id} className="mb-20">
               <div className="flex flex-col mb-10">
                 <h2 className="text-3xl font-bold font-serif text-[--color-navy] mb-2">
                   {album.title}
                 </h2>
-                <div className="tick-mark"></div>
+
                 <span className="text-sm font-bold uppercase tracking-widest text-[--color-muted] mt-4">
                   {album.images.length} PHOTO{album.images.length !== 1 ? "S" : ""}
                 </span>
@@ -75,27 +76,45 @@ export default function GalleryPage() {
                 {album.images.map((img) => (
                   <button
                     key={img.id}
-                    className="w-full break-inside-avoid border border-[--color-border] bg-white p-1 hover:shadow-xl transition-shadow focus:outline-none focus-visible:ring-4 focus-visible:ring-[--color-navy] focus-visible:ring-offset-2"
+                    className="relative group w-full break-inside-avoid border border-[--color-border] bg-white p-1 hover:shadow-xl transition-shadow focus:outline-none focus-visible:ring-4 focus-visible:ring-[--color-navy] focus-visible:ring-offset-2 overflow-hidden"
                     onClick={() => setLightbox(img)}
                     aria-label={`View: ${img.alt}`}
                   >
-                    {/* Placeholder coloured block (replaces real image until assets are added) */}
-                    <div
-                      className="w-full flex items-center justify-center text-white/40"
-                      style={{
-                        height: img.height > img.width ? "280px" : "200px",
-                        background:
-                          "linear-gradient(135deg, var(--color-navy-light) 0%, var(--color-navy) 100%)",
-                      }}
-                      aria-hidden="true"
-                    >
-                      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://picsum.photos/seed/${img.id}/${img.width > 800 ? 800 : img.width}/${img.height > 800 ? 800 : img.height}`}
+                      alt={img.alt}
+                      className="w-full h-auto object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <span className="text-white opacity-0 group-hover:opacity-100 font-bold tracking-widest uppercase transition-opacity">View</span>
                     </div>
-                    <p className="sr-only">{img.alt}</p>
                   </button>
                 ))}
+
+                {/* View More Box */}
+                <button
+                  className="group relative w-full break-inside-avoid border-4 border-black flex flex-col items-center justify-center p-8 hover:opacity-90 transition-opacity text-black aspect-[3/2] focus:outline-none focus-visible:ring-4 focus-visible:ring-[--color-navy] focus-visible:ring-offset-2 overflow-hidden"
+                  aria-label={`View more photos from ${album.title}`}
+                  style={{
+                    backgroundImage: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.9) 100%), conic-gradient(#e5e7eb 90deg, #f9fafb 90deg 180deg, #e5e7eb 180deg 270deg, #f9fafb 270deg)",
+                    backgroundSize: "100% 100%, 32px 32px",
+                  }}
+                >
+                  <div className="relative z-10 flex items-center gap-2 font-serif text-xl font-bold transition-transform group-hover:scale-105 bg-white/70 px-4 py-2 rounded-full backdrop-blur-sm border border-white">
+                    <span>More</span>
+                    <svg
+                      className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
+                </button>
               </div>
             </div>
           ))}

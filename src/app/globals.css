@@ -16,7 +16,7 @@
 
 @layer base {
   body {
-    @apply bg-[#FAFAFA] text-[--color-charcoal];
+    @apply bg-white text-[--color-charcoal];
   }
 }
 
@@ -24,7 +24,7 @@
   .tick-mark {
     @apply w-[3px] h-[40px] bg-[--color-gold] inline-block;
   }
-  
+
   .tick-mark-diagonal {
     @apply w-[2px] h-[40px] bg-[--color-gold] inline-block transform rotate-12;
   }
