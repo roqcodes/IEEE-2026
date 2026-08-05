@@ -1,56 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { events as initialEvents, Event } from "@/data/events";
 import { execomMembers as initialExecom, ExecomMember } from "@/data/execom";
 
-/* ─────────────────────────────────────────────────────────────
-   TYPES & DATA MODELS
-   ───────────────────────────────────────────────────────────── */
-
-type AdminTab =
-  | "overview"
-  | "events"
-  | "excom"
-  | "announcements"
-  | "superadmin-overview"
-  | "superadmin-rbac"
-  | "superadmin-flags"
-  | "superadmin-treasury"
-  | "superadmin-audit"
-  | "superadmin-danger";
+type AdminTab = "events" | "execom" | "announcements" | "superadmin" | "backup";
 
 interface Announcement {
   id: string;
   title: string;
   category: "Urgent Banner" | "General Notice" | "Workshop Alert" | "Recruitment";
-  target: "All Members" | "ExCom Only" | "Public Site" | "CS Chapter";
+  target: "All Members" | "ExCom Only" | "Public Site";
   published: boolean;
   date: string;
-  author: string;
 }
 
 interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "SuperAdmin" | "Branch Admin" | "Treasurer" | "Technical Lead" | "Editor";
-  status: "Active" | "Suspended" | "Pending 2FA";
+  role: "SuperAdmin" | "Branch Admin" | "Treasurer" | "Technical Lead";
+  status: "Active" | "Suspended";
   lastLogin: string;
-  permissions: string[];
-}
-
-interface AuditLogItem {
-  id: string;
-  timestamp: string;
-  actor: string;
-  role: string;
-  action: string;
-  target: string;
-  severity: "info" | "warning" | "critical";
-  ipAddress: string;
 }
 
 interface GrantRequest {
@@ -58,11 +31,17 @@ interface GrantRequest {
   chapter: string;
   title: string;
   amountRequested: number;
-  allocatedAmount: number;
   submittedBy: string;
   date: string;
   status: "Approved" | "Pending Review" | "Rejected";
-  purpose: string;
+}
+
+interface AuditLog {
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  target: string;
 }
 
 const INITIAL_ANNOUNCEMENTS: Announcement[] = [
@@ -73,7 +52,6 @@ const INITIAL_ANNOUNCEMENTS: Announcement[] = [
     target: "Public Site",
     published: true,
     date: "2025-08-04",
-    author: "Arjun Menon (Chair)",
   },
   {
     id: "ann-2",
@@ -82,7 +60,6 @@ const INITIAL_ANNOUNCEMENTS: Announcement[] = [
     target: "ExCom Only",
     published: true,
     date: "2025-08-02",
-    author: "Rohan Das (Secretary)",
   },
   {
     id: "ann-3",
@@ -91,16 +68,14 @@ const INITIAL_ANNOUNCEMENTS: Announcement[] = [
     target: "All Members",
     published: true,
     date: "2025-07-28",
-    author: "Divya Pillai (Events Head)",
   },
   {
     id: "ann-4",
     title: "ESP32 Hardware Kit distribution list for IoT Workshop participants.",
     category: "Workshop Alert",
-    target: "CS Chapter",
+    target: "Public Site",
     published: false,
     date: "2025-07-25",
-    author: "Aditya Kumar (Tech Head)",
   },
 ];
 
@@ -111,8 +86,7 @@ const INITIAL_ADMIN_USERS: AdminUser[] = [
     email: "arjun.chair@cusat.ac.in",
     role: "SuperAdmin",
     status: "Active",
-    lastLogin: "Just now (103.14.120.4)",
-    permissions: ["all_access", "rbac_manage", "treasury_approve", "system_purge", "vtools_sync"],
+    lastLogin: "Today, 11:20 AM",
   },
   {
     id: "adm-2",
@@ -120,8 +94,7 @@ const INITIAL_ADMIN_USERS: AdminUser[] = [
     email: "sneha.vicechair@cusat.ac.in",
     role: "Branch Admin",
     status: "Active",
-    lastLogin: "2 hours ago",
-    permissions: ["events_manage", "excom_edit", "announcements_post"],
+    lastLogin: "Yesterday, 4:15 PM",
   },
   {
     id: "adm-3",
@@ -129,259 +102,190 @@ const INITIAL_ADMIN_USERS: AdminUser[] = [
     email: "priya.treasurer@cusat.ac.in",
     role: "Treasurer",
     status: "Active",
-    lastLogin: "Yesterday at 18:20",
-    permissions: ["treasury_view", "treasury_draft", "financial_export"],
+    lastLogin: "2 days ago",
   },
   {
     id: "adm-4",
-    name: "Aditya Kumar",
-    email: "aditya.tech@cusat.ac.in",
-    role: "Technical Lead",
-    status: "Active",
-    lastLogin: "3 days ago",
-    permissions: ["events_manage", "gallery_manage", "web_deploy"],
-  },
-  {
-    id: "adm-5",
-    name: "Dr. Biju N (Counselor)",
+    name: "Dr. Biju N",
     email: "bijun@cusat.ac.in",
     role: "SuperAdmin",
     status: "Active",
     lastLogin: "5 days ago",
-    permissions: ["all_access", "faculty_override"],
-  },
-];
-
-const INITIAL_AUDIT_LOGS: AuditLogItem[] = [
-  {
-    id: "log-1",
-    timestamp: "2026-08-05 13:58:22",
-    actor: "Arjun Menon",
-    role: "SuperAdmin",
-    action: "ELEVATE_SUPERADMIN_SESSION",
-    target: "Root Console",
-    severity: "info",
-    ipAddress: "103.14.120.4",
-  },
-  {
-    id: "log-2",
-    timestamp: "2026-08-05 12:15:10",
-    actor: "Sneha Krishnan",
-    role: "Branch Admin",
-    action: "CREATE_EVENT",
-    target: "TechSprint 2025 (competition)",
-    severity: "info",
-    ipAddress: "117.240.18.92",
-  },
-  {
-    id: "log-3",
-    timestamp: "2026-08-05 10:44:03",
-    actor: "Arjun Menon",
-    role: "SuperAdmin",
-    action: "UPDATE_FEATURE_FLAG",
-    target: "PUBLIC_REGISTRATIONS -> ENABLED",
-    severity: "warning",
-    ipAddress: "103.14.120.4",
-  },
-  {
-    id: "log-4",
-    timestamp: "2026-08-04 17:30:00",
-    actor: "Priya Nair",
-    role: "Treasurer",
-    action: "SUBMIT_GRANT_REQUEST",
-    target: "RAS Chapter Drone Workshop Grant (₹35,000)",
-    severity: "info",
-    ipAddress: "14.139.185.10",
-  },
-  {
-    id: "log-5",
-    timestamp: "2026-08-03 14:02:19",
-    actor: "Security Gateway",
-    role: "SYSTEM",
-    action: "BLOCKED_UNAUTHORIZED_ACCESS_ATTEMPT",
-    target: "/api/v1/superadmin/purge",
-    severity: "critical",
-    ipAddress: "194.26.29.112",
   },
 ];
 
 const INITIAL_GRANTS: GrantRequest[] = [
   {
-    id: "grant-101",
-    chapter: "IEEE Robotics & Automation Society (RAS)",
-    title: "Autonomous Drone Flight & Micro-Controller Testing Lab",
+    id: "grant-1",
+    chapter: "Robotics & Automation (RAS)",
+    title: "Autonomous Drone Flight Hardware Lab",
     amountRequested: 45000,
-    allocatedAmount: 40000,
-    submittedBy: "Farhan Ali (RAS Chair)",
+    submittedBy: "Farhan Ali",
     date: "2025-07-20",
     status: "Approved",
-    purpose:
-      "Procurement of 10 Quadcopter hardware frames, ESCs, optical flow sensors and LiPo batteries for student workshops.",
   },
   {
-    id: "grant-102",
-    chapter: "IEEE Women in Engineering (WIE)",
-    title: "EmpowerTech: School Outreach & STEM Mentorship Camp",
+    id: "grant-2",
+    chapter: "Women in Engineering (WIE)",
+    title: "STEM Mentorship Camp for High Schools",
     amountRequested: 25000,
-    allocatedAmount: 25000,
-    submittedBy: "Meera Nandakumar (WIE Lead)",
+    submittedBy: "Meera Nandakumar",
     date: "2025-08-01",
     status: "Pending Review",
-    purpose:
-      "Conducting hands-on Arduino and basic electronics workshops for 120 girl students from government high schools in Ernakulam.",
   },
   {
-    id: "grant-103",
-    chapter: "IEEE Computer Society (CS)",
-    title: "AI Cluster Cloud Compute Sponsorship (GPU credits)",
+    id: "grant-3",
+    chapter: "Computer Society (CS)",
+    title: "Cloud GPU Compute for AI Hackathon",
     amountRequested: 50000,
-    allocatedAmount: 0,
-    submittedBy: "Aditya Kumar (CS Lead)",
+    submittedBy: "Aditya Kumar",
     date: "2025-08-03",
     status: "Pending Review",
-    purpose:
-      "Cloud GPU instances on Lambda Labs/AWS for members training deep learning models for national hackathons.",
-  },
-  {
-    id: "grant-104",
-    chapter: "IEEE Power & Energy Society (PES)",
-    title: "Solar EV Charging Station Prototype Project",
-    amountRequested: 60000,
-    allocatedAmount: 0,
-    submittedBy: "Gautham Krishna (PES Chair)",
-    date: "2025-06-15",
-    status: "Rejected",
-    purpose:
-      "Hardware parts for solar MPPT inverter; advised to apply for Kerala Section PES Major Student Project Grant instead.",
   },
 ];
 
-function AdminContent() {
+const INITIAL_AUDIT_LOGS: AuditLog[] = [
+  {
+    id: "log-1",
+    timestamp: "2026-08-05 11:20",
+    user: "Arjun Menon",
+    action: "UPDATE_EVENT",
+    target: "TechSprint 2025",
+  },
+  {
+    id: "log-2",
+    timestamp: "2026-08-05 09:45",
+    user: "Sneha Krishnan",
+    action: "PUBLISH_ANNOUNCEMENT",
+    target: "TechSprint Registrations",
+  },
+  {
+    id: "log-3",
+    timestamp: "2026-08-04 16:30",
+    user: "Priya Nair",
+    action: "APPROVE_GRANT",
+    target: "RAS Drone Workshop (₹45,000)",
+  },
+];
+
+function AdminDashboard() {
   const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<AdminTab>("events");
+  const [toast, setToast] = useState<string | null>(null);
 
-  // Navigation State
-  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  // SuperAdmin Login State - ONLY revealed after successful login
+  const [isSuperAdminLoggedIn, setIsSuperAdminLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [loginError, setLoginError] = useState(false);
 
-  // Elevation / Security State
-  const [isSuperAdminElevated, setIsSuperAdminElevated] = useState(false);
-  const [showSecurityModal, setShowSecurityModal] = useState(false);
-  const [securityPinInput, setSecurityPinInput] = useState("");
-  const [pinError, setPinError] = useState(false);
+  // Sync tab with URL parameters
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") || searchParams.get("view");
+    if (tabParam === "superadmin") {
+      if (!isSuperAdminLoggedIn) {
+        setShowLoginModal(true);
+      } else {
+        setActiveTab("superadmin");
+      }
+    } else if (tabParam && ["events", "execom", "announcements", "backup"].includes(tabParam)) {
+      setActiveTab(tabParam as AdminTab);
+    }
+  }, [searchParams, isSuperAdminLoggedIn]);
 
-  // Interactive Live Data State
+  // Data State
   const [eventsList, setEventsList] = useState<Event[]>(initialEvents);
   const [execomList, setExecomList] = useState<ExecomMember[]>(initialExecom);
   const [announcementsList, setAnnouncementsList] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
-  const [adminUsersList, setAdminUsersList] = useState<AdminUser[]>(INITIAL_ADMIN_USERS);
-  const [auditLogsList, setAuditLogsList] = useState<AuditLogItem[]>(INITIAL_AUDIT_LOGS);
-  const [grantsList, setGrantsList] = useState<GrantRequest[]>(INITIAL_GRANTS);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(INITIAL_ADMIN_USERS);
+  const [grants, setGrants] = useState<GrantRequest[]>(INITIAL_GRANTS);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
 
-  // Global Feature Flags State (SuperAdmin)
-  const [flags, setFlags] = useState({
-    maintenanceMode: false,
+  // SuperAdmin Feature Flags
+  const [siteFlags, setSiteFlags] = useState({
     publicRegistrations: true,
-    inductionDriveActive: true,
-    vToolsAutoSync: true,
-    analyticsTelemetry: true,
-    paymentGatewaySandbox: false,
-    allowGuestSubmissions: true,
+    maintenanceMode: false,
+    inductionDriveBanner: true,
   });
 
-  // Modal States
-  const [showEventModal, setShowEventModal] = useState(false);
+  // Search & Filter State
+  const [eventSearch, setEventSearch] = useState("");
+  const [eventCategoryFilter, setEventCategoryFilter] = useState("all");
+  const [execomSearch, setExecomSearch] = useState("");
+
+  // Modals
+  const [eventModalOpen, setEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [eventFormData, setEventFormData] = useState<Partial<Event>>({
+  const [eventForm, setEventForm] = useState<Partial<Event>>({
     title: "",
     slug: "",
     date: "",
-    location: "",
+    location: "CUSAT Campus, Kochi",
     category: "workshop",
     status: "upcoming",
     description: "",
-    body: "",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
-    registrationLink: "https://forms.google.com",
+    registrationLink: "",
   });
 
-  const [showExcomModal, setShowExcomModal] = useState(false);
-  const [editingExcom, setEditingExcom] = useState<ExecomMember | null>(null);
-  const [excomFormData, setExcomFormData] = useState<Partial<ExecomMember>>({
+  const [execomModalOpen, setExecomModalOpen] = useState(false);
+  const [editingExecom, setEditingExecom] = useState<ExecomMember | null>(null);
+  const [execomForm, setExecomForm] = useState<Partial<ExecomMember>>({
     name: "",
     role: "",
-    branch: "",
+    branch: "School of Engineering",
     year: "3rd Year B.Tech",
     email: "",
-    linkedin: "https://linkedin.com",
+    linkedin: "",
     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
   });
 
-  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
-  const [announcementFormData, setAnnouncementFormData] = useState({
+  const [announcementModalOpen, setAnnouncementModalOpen] = useState(false);
+  const [announcementForm, setAnnouncementForm] = useState({
     title: "",
     category: "General Notice" as Announcement["category"],
     target: "Public Site" as Announcement["target"],
-    author: "Arjun Menon (Chair)",
   });
 
-  const [showInviteAdminModal, setShowInviteAdminModal] = useState(false);
-  const [inviteAdminFormData, setInviteAdminFormData] = useState({
+  const [addAdminModalOpen, setAddAdminModalOpen] = useState(false);
+  const [adminForm, setAdminForm] = useState({
     name: "",
     email: "",
     role: "Branch Admin" as AdminUser["role"],
   });
 
-  const [showAttendeeDrawer, setShowAttendeeDrawer] = useState<Event | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [attendeeModalEvent, setAttendeeModalEvent] = useState<Event | null>(null);
 
-  // Sync tab with URL parameters (e.g. ?view=superadmin)
-  useEffect(() => {
-    const viewParam = searchParams.get("view");
-    const tabParam = searchParams.get("tab");
-    if (viewParam === "superadmin" || viewParam === "superadmin-overview") {
-      setActiveTab("superadmin-overview");
-      setIsSuperAdminElevated(true);
-    } else if (tabParam) {
-      setActiveTab(tabParam as AdminTab);
-    }
-  }, [searchParams]);
-
-  // Trigger Toast Notification
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4000);
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
   };
 
-  // SuperAdmin PIN Verification
-  const handleVerifyPin = (overridePin?: string) => {
-    const pin = overridePin || securityPinInput;
-    if (pin === "1884" || pin === "admin" || pin === "root" || overridePin === "1884") {
-      setIsSuperAdminElevated(true);
-      setShowSecurityModal(false);
-      setSecurityPinInput("");
-      setPinError(false);
-      triggerToast("🔐 Privilege Elevated: SuperAdministrator root access granted.");
-      if (!activeTab.startsWith("superadmin-")) {
-        setActiveTab("superadmin-overview");
-      }
+  // SuperAdmin Login Handler
+  const handleSuperAdminLogin = (overridePin?: string) => {
+    const pin = overridePin || pinInput;
+    if (pin === "1884" || pin === "admin" || pin === "root") {
+      setIsSuperAdminLoggedIn(true);
+      setShowLoginModal(false);
+      setPinInput("");
+      setLoginError(false);
+      setActiveTab("superadmin");
+      showToast("⚡ Logged in as SuperAdmin. Specifications unlocked.");
     } else {
-      setPinError(true);
+      setLoginError(true);
     }
   };
 
-  const handleDemotePrivileges = () => {
-    setIsSuperAdminElevated(false);
-    triggerToast("🔒 Privileges restricted back to Standard Branch Administrator.");
-    if (activeTab.startsWith("superadmin-")) {
-      setActiveTab("overview");
-    }
+  const handleSuperAdminLogout = () => {
+    setIsSuperAdminLoggedIn(false);
+    setActiveTab("events");
+    showToast("🔒 Logged out of SuperAdmin.");
   };
 
   // Event Handlers
-  const handleOpenNewEvent = () => {
+  const handleOpenAddEvent = () => {
     setEditingEvent(null);
-    setEventFormData({
+    setEventForm({
       title: "",
       slug: `event-${Date.now()}`,
       date: new Date().toISOString().split("T")[0],
@@ -389,1008 +293,971 @@ function AdminContent() {
       category: "workshop",
       status: "upcoming",
       description: "",
-      body: "",
       image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
-      registrationLink: "https://forms.google.com",
+      registrationLink: "",
     });
-    setShowEventModal(true);
+    setEventModalOpen(true);
   };
 
   const handleOpenEditEvent = (ev: Event) => {
     setEditingEvent(ev);
-    setEventFormData(ev);
-    setShowEventModal(true);
+    setEventForm(ev);
+    setEventModalOpen(true);
   };
 
   const handleSaveEvent = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!eventFormData.title || !eventFormData.slug) return;
+    if (!eventForm.title || !eventForm.slug) return;
 
     if (editingEvent) {
       setEventsList((prev) =>
         prev.map((item) =>
-          item.slug === editingEvent.slug ? ({ ...item, ...eventFormData } as Event) : item
+          item.slug === editingEvent.slug ? ({ ...item, ...eventForm } as Event) : item
         )
       );
-      triggerToast(`Event "${eventFormData.title}" updated successfully.`);
+      showToast(`Event "${eventForm.title}" updated.`);
     } else {
-      const newEv = eventFormData as Event;
-      setEventsList((prev) => [newEv, ...prev]);
-      triggerToast(`Event "${eventFormData.title}" created successfully.`);
+      setEventsList((prev) => [eventForm as Event, ...prev]);
+      showToast(`Event "${eventForm.title}" created.`);
     }
-    setShowEventModal(false);
+    setEventModalOpen(false);
   };
 
   const handleDeleteEvent = (slug: string) => {
-    if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+    if (confirm("Delete this event?")) {
       setEventsList((prev) => prev.filter((e) => e.slug !== slug));
-      triggerToast("Event deleted from system.");
+      showToast("Event deleted.");
     }
   };
 
-  // ExCom Handlers
-  const handleSaveExcom = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!excomFormData.name || !excomFormData.role) return;
+  // Execom Handlers
+  const handleOpenAddExecom = () => {
+    setEditingExecom(null);
+    setExecomForm({
+      name: "",
+      role: "",
+      branch: "School of Engineering",
+      year: "3rd Year B.Tech",
+      email: "",
+      linkedin: "",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
+    });
+    setExecomModalOpen(true);
+  };
 
-    if (editingExcom) {
+  const handleOpenEditExecom = (m: ExecomMember) => {
+    setEditingExecom(m);
+    setExecomForm(m);
+    setExecomModalOpen(true);
+  };
+
+  const handleSaveExecom = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!execomForm.name || !execomForm.role) return;
+
+    if (editingExecom) {
       setExecomList((prev) =>
         prev.map((item) =>
-          item.id === editingExcom.id ? ({ ...item, ...excomFormData } as ExecomMember) : item
+          item.id === editingExecom.id ? ({ ...item, ...execomForm } as ExecomMember) : item
         )
       );
-      triggerToast(`Officer profile for "${excomFormData.name}" updated.`);
+      showToast(`Officer "${execomForm.name}" updated.`);
     } else {
-      const newOfficer: ExecomMember = {
-        id: `excom-${Date.now()}`,
-        name: excomFormData.name || "Member Name",
-        role: excomFormData.role || "Executive Member",
-        branch: excomFormData.branch || "School of Engineering",
-        year: excomFormData.year || "3rd Year B.Tech",
-        photo: excomFormData.photo || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
-        email: excomFormData.email,
-        linkedin: excomFormData.linkedin,
+      const newMember: ExecomMember = {
+        id: `member-${Date.now()}`,
+        name: execomForm.name || "",
+        role: execomForm.role || "",
+        branch: execomForm.branch || "School of Engineering",
+        year: execomForm.year || "3rd Year B.Tech",
+        photo:
+          execomForm.photo ||
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
+        email: execomForm.email,
+        linkedin: execomForm.linkedin,
       };
-      setExecomList((prev) => [newOfficer, ...prev]);
-      triggerToast(`New officer "${newOfficer.name}" added to ExCom roster.`);
+      setExecomList((prev) => [newMember, ...prev]);
+      showToast(`Officer "${newMember.name}" added.`);
     }
-    setShowExcomModal(false);
+    setExecomModalOpen(false);
   };
 
-  const handleDeleteExcom = (id: string) => {
-    if (confirm("Remove this officer from the active ExCom directory?")) {
+  const handleDeleteExecom = (id: string) => {
+    if (confirm("Remove this member from ExCom?")) {
       setExecomList((prev) => prev.filter((m) => m.id !== id));
-      triggerToast("Officer removed from ExCom directory.");
+      showToast("Member removed.");
     }
   };
 
-  // Announcements Handlers
+  // Announcement Handlers
   const handleSaveAnnouncement = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!announcementFormData.title) return;
+    if (!announcementForm.title) return;
     const newAnn: Announcement = {
       id: `ann-${Date.now()}`,
-      title: announcementFormData.title,
-      category: announcementFormData.category,
-      target: announcementFormData.target,
+      title: announcementForm.title,
+      category: announcementForm.category,
+      target: announcementForm.target,
       published: true,
       date: new Date().toISOString().split("T")[0],
-      author: announcementFormData.author,
     };
     setAnnouncementsList((prev) => [newAnn, ...prev]);
-    setShowAnnouncementModal(false);
-    triggerToast("Announcement broadcasted live.");
+    setAnnouncementModalOpen(false);
+    setAnnouncementForm({ title: "", category: "General Notice", target: "Public Site" });
+    showToast("Announcement published.");
   };
 
-  const handleTogglePublishAnnouncement = (id: string) => {
+  const handleTogglePublish = (id: string) => {
     setAnnouncementsList((prev) =>
       prev.map((a) => (a.id === id ? { ...a, published: !a.published } : a))
     );
-    triggerToast("Announcement visibility toggled.");
+    showToast("Status updated.");
   };
 
-  // SuperAdmin Grants
-  const handleUpdateGrant = (id: string, newStatus: "Approved" | "Rejected") => {
-    setGrantsList((prev) =>
-      prev.map((g) => {
-        if (g.id === id) {
-          return {
-            ...g,
-            status: newStatus,
-            allocatedAmount: newStatus === "Approved" ? g.amountRequested : 0,
-          };
-        }
-        return g;
-      })
-    );
-    triggerToast(`Grant ${id} marked as ${newStatus}. Treasury ledgers adjusted.`);
+  const handleDeleteAnnouncement = (id: string) => {
+    setAnnouncementsList((prev) => prev.filter((a) => a.id !== id));
+    showToast("Announcement removed.");
   };
 
-  // SuperAdmin Admin Users
-  const handleSaveInviteAdmin = (e: React.FormEvent) => {
+  // SuperAdmin Handlers
+  const handleSaveAdmin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteAdminFormData.name || !inviteAdminFormData.email) return;
-    const newUser: AdminUser = {
+    if (!adminForm.name || !adminForm.email) return;
+    const newAdm: AdminUser = {
       id: `adm-${Date.now()}`,
-      name: inviteAdminFormData.name,
-      email: inviteAdminFormData.email,
-      role: inviteAdminFormData.role,
+      name: adminForm.name,
+      email: adminForm.email,
+      role: adminForm.role,
       status: "Active",
-      lastLogin: "Never (Pending Invitation)",
-      permissions:
-        inviteAdminFormData.role === "SuperAdmin"
-          ? ["all_access", "rbac_manage", "treasury_approve"]
-          : ["events_manage", "announcements_post"],
+      lastLogin: "Pending login",
     };
-    setAdminUsersList((prev) => [newUser, ...prev]);
-    setShowInviteAdminModal(false);
-    triggerToast(`Admin invitation sent to ${newUser.email}`);
+    setAdminUsers((prev) => [...prev, newAdm]);
+    setAddAdminModalOpen(false);
+    setAdminForm({ name: "", email: "", role: "Branch Admin" });
+    showToast(`Admin account created for ${newAdm.email}.`);
   };
 
-  const handleToggleUserStatus = (id: string) => {
-    setAdminUsersList((prev) =>
+  const handleToggleAdminStatus = (id: string) => {
+    setAdminUsers((prev) =>
       prev.map((u) => {
         if (u.id === id) {
-          const nextStatus = u.status === "Active" ? "Suspended" : "Active";
-          return { ...u, status: nextStatus };
+          const next = u.status === "Active" ? "Suspended" : "Active";
+          return { ...u, status: next };
         }
         return u;
       })
     );
-    triggerToast("Admin account status toggled.");
+    showToast("Admin account status updated.");
   };
 
-  // SuperAdmin Danger Zone Actions
-  const handleTriggerSnapshot = () => {
-    const backupData = {
-      timestamp: new Date().toISOString(),
-      branch: "IEEE CUSAT Student Branch (STB64341)",
+  const handleDeleteAdmin = (id: string) => {
+    if (confirm("Delete this admin account?")) {
+      setAdminUsers((prev) => prev.filter((u) => u.id !== id));
+      showToast("Admin account deleted.");
+    }
+  };
+
+  const handleUpdateGrantStatus = (id: string, newStatus: "Approved" | "Rejected") => {
+    setGrants((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, status: newStatus } : g))
+    );
+    showToast(`Grant marked as ${newStatus}.`);
+  };
+
+  // Filtered lists
+  const filteredEvents = useMemo(() => {
+    return eventsList.filter((ev) => {
+      const matchSearch =
+        ev.title.toLowerCase().includes(eventSearch.toLowerCase()) ||
+        ev.location.toLowerCase().includes(eventSearch.toLowerCase());
+      const matchCategory =
+        eventCategoryFilter === "all" || ev.category === eventCategoryFilter;
+      return matchSearch && matchCategory;
+    });
+  }, [eventsList, eventSearch, eventCategoryFilter]);
+
+  const filteredExecom = useMemo(() => {
+    return execomList.filter((m) => {
+      return (
+        m.name.toLowerCase().includes(execomSearch.toLowerCase()) ||
+        m.role.toLowerCase().includes(execomSearch.toLowerCase()) ||
+        m.branch.toLowerCase().includes(execomSearch.toLowerCase())
+      );
+    });
+  }, [execomList, execomSearch]);
+
+  const handleExportJSON = () => {
+    const data = {
+      exportDate: new Date().toISOString(),
       events: eventsList,
       execom: execomList,
       announcements: announcementsList,
-      flags: flags,
-      grants: grantsList,
+      adminUsers: isSuperAdminLoggedIn ? adminUsers : undefined,
+      grants: isSuperAdminLoggedIn ? grants : undefined,
     };
-    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ieee-cusat-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `ieee-cusat-data-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
-    triggerToast("💾 Database snapshot generated and downloaded.");
-  };
-
-  const handlePurgeCache = () => {
-    triggerToast("⚡ Static Edge cache & Next.js ISR tags purged successfully.");
-  };
-
-  const handleSyncVtools = () => {
-    triggerToast("🔄 Synchronized events and officer rosters with IEEE vTools API.");
+    showToast("Data exported successfully.");
   };
 
   return (
-    <div className="min-h-screen bg-white text-[--color-charcoal] font-sans antialiased">
-      
-      {/* ─────────────────────────────────────────────────────────────
-          1. ANIMATED DECORATIVE FRAME ACCENTS (HOMEPAGE DESIGN SYSTEM)
-         ───────────────────────────────────────────────────────────── */}
-      <div className="fixed top-0 left-0 z-40 w-2 h-16 bg-[--color-gold] animate-bar-down"></div>
-      <div className="fixed top-0 left-0 right-0 z-40 h-[2px] bg-[--color-gold] animate-line-right"></div>
-
-      {/* Floating Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-8 right-8 z-50 bg-[--color-navy] text-white px-6 py-4 shadow-2xl border-l-4 border-[--color-gold] flex items-center gap-3 animate-in fade-in duration-300">
-          <span className="text-[--color-gold] text-lg">⚡</span>
-          <p className="text-sm font-medium">{toastMessage}</p>
-          <button
-            onClick={() => setToastMessage(null)}
-            className="text-gray-300 hover:text-white text-xs ml-3 font-bold"
-          >
-            ✕
-          </button>
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0A2540] text-white px-5 py-3 shadow-lg border-l-4 border-[#F2A900] text-sm flex items-center gap-3 animate-in fade-in duration-200">
+          <span>{toast}</span>
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          2. INSTITUTIONAL PAGE HEADER BANNER (SOURCE SERIF & GOLD DIVIDERS)
-         ───────────────────────────────────────────────────────────── */}
-      <section className="pt-16 pb-14 bg-white border-b border-gray-200 relative">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center">
-            
-            {/* Eyebrow Breadcrumb & Back Link */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-              <Link
-                href="/"
-                className="text-xs font-bold tracking-wider text-[--color-navy] hover:text-[--color-gold] transition-colors"
-              >
-                ← Public Website
-              </Link>
-              <span className="text-gray-300 font-mono">/</span>
-              <span className="text-xs font-bold tracking-widest text-[--color-gold] uppercase">
-                GOVERNANCE & BRANCH ADMINISTRATION
-              </span>
-              <span className="text-gray-300 font-mono">/</span>
-              <span className="text-xs font-mono font-bold px-2 py-0.5 bg-gray-100 text-gray-700">
-                STB-64341 • REGION 10
-              </span>
+      {/* Top Navbar */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#0A2540] text-white flex items-center justify-center font-bold text-xs">
+              IEEE
             </div>
-
-            {/* Source Serif Main Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[--color-navy] mb-4 tracking-tight">
-              Administrative Command Center
-            </h1>
-
-            <p className="text-[#333333] max-w-3xl text-base sm:text-lg leading-relaxed font-sans mb-6">
-              Unified operational control for IEEE CUSAT Student Branch. Coordinate technical workshop schedules, executive leadership appointments, official announcements, and root governance clearance.
-            </p>
-
-            {/* Clearance Action Button */}
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                onClick={() => {
-                  if (isSuperAdminElevated) {
-                    handleDemotePrivileges();
-                  } else {
-                    setShowSecurityModal(true);
-                  }
-                }}
-                className={`inline-flex items-center gap-2 px-5 py-2 border text-xs font-bold tracking-wider uppercase transition-all shadow-xs ${
-                  isSuperAdminElevated
-                    ? "bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100"
-                    : "bg-white border-[#0A2540] text-[#0A2540] hover:bg-[#0A2540] hover:text-white"
-                }`}
-              >
-                <span>{isSuperAdminElevated ? "⚡" : "🔒"}</span>
-                <span>{isSuperAdminElevated ? "SuperAdmin Active (Lock Root)" : "SuperAdmin Login"}</span>
-              </button>
+            <div>
+              <h1 className="text-base font-bold text-[#0A2540] leading-none">
+                IEEE CUSAT Admin
+              </h1>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                {isSuperAdminLoggedIn ? "SuperAdmin Console (Authenticated)" : "Management Dashboard"}
+              </p>
             </div>
-
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* ─────────────────────────────────────────────────────────────
-          4. "COMMAND MATRIX & MODULES" (HOMEPAGE "HOMETABS" STYLE)
-         ───────────────────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        
-        <div className="w-full relative h-0 border-t border-gray-200 mb-16">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
-        </div>
-
-        <h2 className="text-[36px] md:text-[40px] font-bold font-serif text-[--color-navy] text-center mb-16 leading-tight max-w-3xl mx-auto">
-          Unified Operations, Chapter Governance, and Root Clearance.
-        </h2>
-
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
-          
-          {/* LEFT COLUMN: LIQUID HOMETABS STYLE NAVIGATION */}
-          <div className="w-full lg:w-1/3 flex flex-col shrink-0">
-            
-            <p className="italic font-serif text-[--color-navy] text-lg mb-2">
-              Select Management Module
-            </p>
-            <div className="tick-mark mb-6"></div>
-
-            <div className="border border-gray-200 divide-y divide-gray-200 bg-[#FAFAFA] shadow-sm">
-              
-              {/* Module Tab 1: Overview */}
-              <button
-                onClick={() => setActiveTab("overview")}
-                className={`w-full text-left py-4 px-6 text-base transition-all flex items-center justify-between ${
-                  activeTab === "overview"
-                    ? "bg-white text-[#0A2540] font-bold border-l-4 border-[#0A2540] shadow-sm"
-                    : "text-[#666666] bg-[#FAFAFA] font-medium hover:bg-white hover:text-[#0A2540]"
-                }`}
-              >
-                <span className={activeTab === "overview" ? "text-[#0A2540] font-bold" : "text-[#666666]"}>
-                  📊 Dashboard Overview
-                </span>
-                <span className={`text-xs font-mono font-bold ${activeTab === "overview" ? "text-[#0A2540]" : "text-gray-400"}`}>
-                  01
-                </span>
-              </button>
-
-              {/* Module Tab 2: Events */}
-              <button
-                onClick={() => setActiveTab("events")}
-                className={`w-full text-left py-4 px-6 text-base transition-all flex items-center justify-between ${
-                  activeTab === "events"
-                    ? "bg-white text-[#0A2540] font-bold border-l-4 border-[#0A2540] shadow-sm"
-                    : "text-[#666666] bg-[#FAFAFA] font-medium hover:bg-white hover:text-[#0A2540]"
-                }`}
-              >
-                <span className={activeTab === "events" ? "text-[#0A2540] font-bold" : "text-[#666666]"}>
-                  📅 Events & Workshops
-                </span>
-                <span className={`text-xs font-mono font-bold ${activeTab === "events" ? "text-[#0A2540]" : "text-gray-400"}`}>
-                  02
-                </span>
-              </button>
-
-              {/* Module Tab 3: ExCom */}
-              <button
-                onClick={() => setActiveTab("excom")}
-                className={`w-full text-left py-4 px-6 text-base transition-all flex items-center justify-between ${
-                  activeTab === "excom"
-                    ? "bg-white text-[#0A2540] font-bold border-l-4 border-[#0A2540] shadow-sm"
-                    : "text-[#666666] bg-[#FAFAFA] font-medium hover:bg-white hover:text-[#0A2540]"
-                }`}
-              >
-                <span className={activeTab === "excom" ? "text-[#0A2540] font-bold" : "text-[#666666]"}>
-                  👥 Executive Committee
-                </span>
-                <span className={`text-xs font-mono font-bold ${activeTab === "excom" ? "text-[#0A2540]" : "text-gray-400"}`}>
-                  03
-                </span>
-              </button>
-
-              {/* Module Tab 4: Announcements */}
-              <button
-                onClick={() => setActiveTab("announcements")}
-                className={`w-full text-left py-4 px-6 text-base transition-all flex items-center justify-between ${
-                  activeTab === "announcements"
-                    ? "bg-white text-[#0A2540] font-bold border-l-4 border-[#0A2540] shadow-sm"
-                    : "text-[#666666] bg-[#FAFAFA] font-medium hover:bg-white hover:text-[#0A2540]"
-                }`}
-              >
-                <span className={activeTab === "announcements" ? "text-[#0A2540] font-bold" : "text-[#666666]"}>
-                  📢 Announcements & Bulletins
-                </span>
-                <span className={`text-xs font-mono font-bold ${activeTab === "announcements" ? "text-[#0A2540]" : "text-gray-400"}`}>
-                  04
-                </span>
-              </button>
-
-              {/* SECTION: SUPERADMIN ROOT (ONLY VISIBLE WHEN ELEVATED AS SUPERADMIN) */}
-              {isSuperAdminElevated && (
-                <div className="p-4 bg-amber-50 border-t-2 border-amber-400">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-[11px] font-bold tracking-widest uppercase text-amber-900">
-                      SUPERADMIN ROOT COMMANDS
-                    </p>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-amber-400 text-black font-mono">
-                      UNLOCKED
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    {[
-                      { id: "superadmin-overview", label: "Root Matrix", icon: "⚡" },
-                      { id: "superadmin-rbac", label: "RBAC & Admins", icon: "🛡️" },
-                      { id: "superadmin-flags", label: "Feature Flags", icon: "⚙️" },
-                      { id: "superadmin-treasury", label: "Grants & Treasury", icon: "💰" },
-                      { id: "superadmin-audit", label: "Audit Ledger", icon: "📜" },
-                      { id: "superadmin-danger", label: "Database Snapshots", icon: "💾" },
-                    ].map((sub) => (
-                      <button
-                        key={sub.id}
-                        onClick={() => setActiveTab(sub.id as AdminTab)}
-                        className={`w-full text-left py-2 px-3 text-xs flex items-center justify-between transition-colors ${
-                          activeTab === sub.id
-                            ? "bg-white text-black font-bold border-l-2 border-amber-500 shadow-xs"
-                            : "text-amber-900 font-medium hover:bg-amber-100 hover:text-black"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{sub.icon}</span>
-                          <span>{sub.label}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            </div>
-
           </div>
 
-          {/* RIGHT COLUMN: INTERACTIVE MODULE WORKSPACE */}
-          <div className="w-full lg:w-2/3">
-
-            {/* ─── MODULE A: DASHBOARD OVERVIEW ─── */}
-            {activeTab === "overview" && (
-              <div className="space-y-8">
-                
-                {/* Featured Executive Announcement Card */}
-                <div className="bg-[#00629B] text-white p-8 md:p-10 shadow-xl border-l-8 border-[--color-gold]">
-                  <p className="text-[--color-gold] font-bold text-[11px] uppercase tracking-widest mb-3">
-                    EXECUTIVE DIRECTIVE • SESSION 2026
-                  </p>
-                  <h3 className="text-white text-2xl md:text-3xl font-serif font-bold leading-tight mb-4">
-                    Welcome to the IEEE CUSAT Management Console
-                  </h3>
-                  <p className="text-blue-100 text-sm md:text-base leading-relaxed font-sans mb-8 max-w-2xl">
-                    All administrative actions are authenticated and recorded in the permanent audit ledger. Create technical workshops, broadcast public announcements, and coordinate chapter governance with IEEE Kerala Section officers.
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-4">
-                    <button
-                      onClick={handleOpenNewEvent}
-                      className="px-6 py-3 border-2 border-[--color-gold] bg-[--color-gold] text-[--color-navy] font-bold text-xs tracking-widest uppercase hover:bg-white transition-colors"
-                    >
-                      + Create Workshop
-                    </button>
-                    <button
-                      onClick={() => setShowAnnouncementModal(true)}
-                      className="px-6 py-3 border-2 border-white text-white font-bold text-xs tracking-widest uppercase hover:bg-white hover:text-[--color-navy] transition-colors"
-                    >
-                      Broadcast Alert
-                    </button>
-                  </div>
-                </div>
-
-                {/* 2-Column Row: Upcoming Events & Live Bulletins */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  {/* Events Preview */}
-                  <div className="border border-gray-200 bg-white p-6 shadow-sm">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
-                      <h4 className="font-serif font-bold text-lg text-[--color-navy]">Scheduled Events</h4>
-                      <button
-                        onClick={() => setActiveTab("events")}
-                        className="text-xs font-bold text-[--color-navy] hover:text-[--color-gold] uppercase tracking-wider"
-                      >
-                        All ({eventsList.length}) &gt;
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {eventsList.slice(0, 3).map((ev) => (
-                        <div key={ev.slug} className="p-4 bg-[#FAFAFA] border border-gray-200 flex items-center justify-between">
-                          <div>
-                            <span className="text-[10px] font-bold text-[--color-gold] uppercase">{ev.category}</span>
-                            <h5 className="font-bold text-sm text-[--color-navy]">{ev.title}</h5>
-                            <p className="text-xs text-gray-500">{ev.date} • {ev.location}</p>
-                          </div>
-                          <button
-                            onClick={() => setShowAttendeeDrawer(ev)}
-                            className="px-3 py-1 bg-white border border-gray-300 text-xs font-bold hover:bg-[--color-navy] hover:text-white transition-colors shrink-0"
-                          >
-                            Roster
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Bulletins Preview */}
-                  <div className="border border-gray-200 bg-white p-6 shadow-sm">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
-                      <h4 className="font-serif font-bold text-lg text-[--color-navy]">Active Bulletins</h4>
-                      <button
-                        onClick={() => setActiveTab("announcements")}
-                        className="text-xs font-bold text-[--color-navy] hover:text-[--color-gold] uppercase tracking-wider"
-                      >
-                        All ({announcementsList.length}) &gt;
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {announcementsList.slice(0, 3).map((ann) => (
-                        <div key={ann.id} className="p-4 bg-[#FAFAFA] border border-gray-200 space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-yellow-100 text-yellow-900">
-                              {ann.category}
-                            </span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 ${
-                              ann.published ? "bg-emerald-100 text-emerald-800" : "bg-gray-200 text-gray-700"
-                            }`}>
-                              {ann.published ? "Live" : "Draft"}
-                            </span>
-                          </div>
-                          <p className="text-xs font-bold text-[--color-navy] line-clamp-1">{ann.title}</p>
-                          <p className="text-[11px] text-gray-400">{ann.date} • {ann.author}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-
+          <div className="flex items-center gap-3">
+            {isSuperAdminLoggedIn ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300">
+                  ⚡ SuperAdmin Active
+                </span>
+                <button
+                  onClick={handleSuperAdminLogout}
+                  className="text-xs font-semibold px-2.5 py-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition"
+                  title="Logout from SuperAdmin"
+                >
+                  🔒 Logout
+                </button>
               </div>
+            ) : (
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="text-xs font-semibold px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition flex items-center gap-1.5"
+                title="SuperAdmin Login"
+              >
+                <span>🔑</span>
+                <span>SuperAdmin Login</span>
+              </button>
             )}
 
-            {/* ─── MODULE B: EVENTS & WORKSHOPS ─── */}
-            {activeTab === "events" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
-                  <div>
-                    <h3 className="text-2xl font-serif font-bold text-[--color-navy]">Events & Workshops Catalog</h3>
-                    <p className="text-sm text-gray-500">Coordinate branch hackathons, technical bootcamps, and distinguished lectures</p>
-                  </div>
-                  <button
-                    onClick={handleOpenNewEvent}
-                    className="px-6 py-2.5 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
-                  >
-                    + New Workshop
-                  </button>
-                </div>
+            <Link
+              href="/"
+              className="text-xs font-semibold px-3 py-1.5 border border-gray-300 hover:bg-gray-100 text-gray-700 transition"
+            >
+              ← Public Site
+            </Link>
+          </div>
+        </div>
+      </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {eventsList.map((ev) => (
-                    <div key={ev.slug} className="border border-gray-200 bg-white shadow-sm flex flex-col justify-between hover:border-[--color-navy] transition-colors">
-                      <div className="h-44 bg-gray-100 relative overflow-hidden">
-                        <img src={ev.image} alt={ev.title} className="w-full h-full object-cover" />
-                        <span className="absolute top-3 right-3 bg-[--color-navy] text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider">
-                          {ev.status}
-                        </span>
-                      </div>
-                      <div className="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                          <span className="text-[10px] font-bold text-[--color-gold] uppercase tracking-widest">
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation Tabs - SuperAdmin tab is ONLY rendered if isSuperAdminLoggedIn is true */}
+        <div className="flex border-b border-gray-200 bg-white shadow-xs mb-6 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab("events")}
+            className={`px-6 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 ${
+              activeTab === "events"
+                ? "border-[#0A2540] text-[#0A2540] bg-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <span>Events & Workshops</span>
+            <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-mono">
+              {eventsList.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("execom")}
+            className={`px-6 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 ${
+              activeTab === "execom"
+                ? "border-[#0A2540] text-[#0A2540] bg-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <span>ExCom Officers</span>
+            <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-mono">
+              {execomList.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("announcements")}
+            className={`px-6 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 ${
+              activeTab === "announcements"
+                ? "border-[#0A2540] text-[#0A2540] bg-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <span>Announcements</span>
+            <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-mono">
+              {announcementsList.length}
+            </span>
+          </button>
+
+          {/* SuperAdmin Tab ONLY visible after login */}
+          {isSuperAdminLoggedIn && (
+            <button
+              onClick={() => setActiveTab("superadmin")}
+              className={`px-6 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 animate-in fade-in duration-300 ${
+                activeTab === "superadmin"
+                  ? "border-amber-500 text-amber-900 bg-amber-50"
+                  : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <span>⚡ SuperAdmin</span>
+              <span className="text-xs px-2 py-0.5 bg-amber-200 text-amber-900 font-mono font-bold">
+                Root
+              </span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setActiveTab("backup")}
+            className={`px-6 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 ${
+              activeTab === "backup"
+                ? "border-[#0A2540] text-[#0A2540] bg-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <span>Backup & Export</span>
+          </button>
+        </div>
+
+        {/* ── TAB 1: EVENTS ── */}
+        {activeTab === "events" && (
+          <div className="space-y-4">
+            {/* Toolbar */}
+            <div className="bg-white p-4 border border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex flex-1 items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Search events by title or location..."
+                  value={eventSearch}
+                  onChange={(e) => setEventSearch(e.target.value)}
+                  className="w-full sm:max-w-xs px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+                />
+                <select
+                  value={eventCategoryFilter}
+                  onChange={(e) => setEventCategoryFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#0A2540]"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="workshop">Workshop</option>
+                  <option value="seminar">Seminar</option>
+                  <option value="competition">Competition</option>
+                  <option value="social">Social</option>
+                </select>
+              </div>
+
+              <button
+                onClick={handleOpenAddEvent}
+                className="px-4 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs tracking-wider uppercase transition shrink-0"
+              >
+                + Add Event
+              </button>
+            </div>
+
+            {/* Events Table */}
+            <div className="bg-white border border-gray-200 overflow-x-auto shadow-xs">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-gray-100 text-gray-700 text-xs uppercase font-bold border-b border-gray-200">
+                  <tr>
+                    <th className="py-3 px-4">Event Title</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Location</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredEvents.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-gray-400 text-sm">
+                        No events found matching your search.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredEvents.map((ev) => (
+                      <tr key={ev.slug} className="hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-[#0A2540]">
+                          {ev.title}
+                          <span className="block text-xs text-gray-400 font-mono font-normal">
+                            /{ev.slug}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 uppercase font-semibold">
                             {ev.category}
                           </span>
-                          <h4 className="font-serif font-bold text-lg text-[--color-navy] mt-1 mb-2">{ev.title}</h4>
-                          <p className="text-xs text-gray-500 mb-3">{ev.date} • {ev.location}</p>
-                          <p className="text-xs text-gray-600 line-clamp-2">{ev.description}</p>
-                        </div>
-                        <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
-                          <button
-                            onClick={() => setShowAttendeeDrawer(ev)}
-                            className="text-xs font-bold text-[--color-navy] hover:text-[--color-gold] uppercase tracking-wider"
+                        </td>
+                        <td className="py-3 px-4 text-gray-600 whitespace-nowrap text-xs">
+                          {ev.date}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">{ev.location}</td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`text-xs px-2 py-0.5 font-semibold uppercase ${
+                              ev.status === "upcoming"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : ev.status === "live"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-gray-100 text-gray-600 border border-gray-200"
+                            }`}
                           >
-                            Registered Attendees &gt;
-                          </button>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleOpenEditEvent(ev)}
-                              className="px-3 py-1 border border-gray-300 text-xs font-bold hover:bg-gray-100"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteEvent(ev.slug)}
-                              className="px-3 py-1 border border-red-200 text-red-600 text-xs font-bold hover:bg-red-50"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ─── MODULE C: EXECUTIVE COMMITTEE ─── */}
-            {activeTab === "excom" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
-                  <div>
-                    <h3 className="text-2xl font-serif font-bold text-[--color-navy]">Executive Committee Roster</h3>
-                    <p className="text-sm text-gray-500">Branch leadership team and portfolio directors for Session 2026</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEditingExcom(null);
-                      setExcomFormData({
-                        name: "",
-                        role: "",
-                        branch: "School of Engineering",
-                        year: "3rd Year B.Tech",
-                        email: "",
-                        linkedin: "https://linkedin.com",
-                        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
-                      });
-                      setShowExcomModal(true);
-                    }}
-                    className="px-6 py-2.5 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
-                  >
-                    + Add Officer
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {execomList.map((officer) => (
-                    <div key={officer.id} className="border border-gray-200 bg-white p-6 text-center flex flex-col justify-between shadow-sm hover:border-[--color-navy] transition-colors">
-                      <div>
-                        <div className="w-24 h-24 mx-auto mb-4 border-2 border-[--color-navy] p-1 overflow-hidden">
-                          <img src={officer.photo} alt={officer.name} className="w-full h-full object-cover" />
-                        </div>
-                        <h4 className="font-serif font-bold text-base text-[--color-navy]">{officer.name}</h4>
-                        <p className="text-xs font-bold text-[--color-gold] uppercase tracking-wider mt-1">{officer.role}</p>
-                        <p className="text-xs text-gray-500 mt-1">{officer.branch}</p>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-gray-200 flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => {
-                            setEditingExcom(officer);
-                            setExcomFormData(officer);
-                            setShowExcomModal(true);
-                          }}
-                          className="px-3 py-1 border border-gray-300 text-xs font-bold hover:bg-gray-100"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteExcom(officer.id)}
-                          className="px-3 py-1 border border-red-200 text-red-600 text-xs font-bold hover:bg-red-50"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ─── MODULE D: ANNOUNCEMENTS & BULLETINS ─── */}
-            {activeTab === "announcements" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
-                  <div>
-                    <h3 className="text-2xl font-serif font-bold text-[--color-navy]">Announcements & Bulletins</h3>
-                    <p className="text-sm text-gray-500">Broadcast official branch communications, recruitments, and news</p>
-                  </div>
-                  <button
-                    onClick={() => setShowAnnouncementModal(true)}
-                    className="px-6 py-2.5 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
-                  >
-                    + New Bulletin
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {announcementsList.map((ann) => (
-                    <div key={ann.id} className="p-6 border border-gray-200 bg-white flex flex-col md:flex-row justify-between gap-4 items-start md:items-center shadow-sm">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-yellow-100 text-yellow-900">
-                            {ann.category}
+                            {ev.status}
                           </span>
-                          <span className="text-xs text-gray-400 font-mono">Target: {ann.target}</span>
+                        </td>
+                        <td className="py-3 px-4 text-right whitespace-nowrap space-x-2">
+                          <button
+                            onClick={() => setAttendeeModalEvent(ev)}
+                            className="px-2.5 py-1 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300"
+                          >
+                            Attendees
+                          </button>
+                          <button
+                            onClick={() => handleOpenEditEvent(ev)}
+                            className="px-2.5 py-1 text-xs font-semibold bg-white hover:bg-gray-100 text-[#0A2540] border border-gray-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEvent(ev.slug)}
+                            className="px-2.5 py-1 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 2: EXECOM ── */}
+        {activeTab === "execom" && (
+          <div className="space-y-4">
+            {/* Toolbar */}
+            <div className="bg-white p-4 border border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+              <input
+                type="text"
+                placeholder="Search member by name, role, or branch..."
+                value={execomSearch}
+                onChange={(e) => setExecomSearch(e.target.value)}
+                className="w-full sm:max-w-xs px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+              />
+
+              <button
+                onClick={handleOpenAddExecom}
+                className="px-4 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs tracking-wider uppercase transition shrink-0"
+              >
+                + Add Officer
+              </button>
+            </div>
+
+            {/* Execom Table */}
+            <div className="bg-white border border-gray-200 overflow-x-auto shadow-xs">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-gray-100 text-gray-700 text-xs uppercase font-bold border-b border-gray-200">
+                  <tr>
+                    <th className="py-3 px-4">Officer</th>
+                    <th className="py-3 px-4">Role</th>
+                    <th className="py-3 px-4">Department / Branch</th>
+                    <th className="py-3 px-4">Year</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredExecom.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-gray-400 text-sm">
+                        No members found matching your search.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredExecom.map((m) => (
+                      <tr key={m.id} className="hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={m.photo}
+                              alt={m.name}
+                              className="w-9 h-9 object-cover border border-gray-200 shrink-0"
+                            />
+                            <div>
+                              <p className="font-semibold text-[#0A2540]">{m.name}</p>
+                              {m.email && (
+                                <p className="text-xs text-gray-400 font-mono">{m.email}</p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 font-semibold text-gray-800 text-xs uppercase tracking-wide">
+                          {m.role}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">{m.branch}</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">{m.year}</td>
+                        <td className="py-3 px-4 text-right whitespace-nowrap space-x-2">
+                          <button
+                            onClick={() => handleOpenEditExecom(m)}
+                            className="px-2.5 py-1 text-xs font-semibold bg-white hover:bg-gray-100 text-[#0A2540] border border-gray-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteExecom(m.id)}
+                            className="px-2.5 py-1 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 3: ANNOUNCEMENTS ── */}
+        {activeTab === "announcements" && (
+          <div className="space-y-4">
+            {/* Toolbar */}
+            <div className="bg-white p-4 border border-gray-200 flex items-center justify-between shadow-xs">
+              <p className="text-sm text-gray-600">
+                Manage live alerts, recruitment notices, and general announcements.
+              </p>
+              <button
+                onClick={() => setAnnouncementModalOpen(true)}
+                className="px-4 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs tracking-wider uppercase transition shrink-0"
+              >
+                + New Announcement
+              </button>
+            </div>
+
+            {/* Announcements List */}
+            <div className="bg-white border border-gray-200 divide-y divide-gray-200 shadow-xs">
+              {announcementsList.map((ann) => (
+                <div
+                  key={ann.id}
+                  className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50"
+                >
+                  <div className="space-y-1 max-w-2xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-yellow-100 text-yellow-900 border border-yellow-200">
+                        {ann.category}
+                      </span>
+                      <span className="text-xs text-gray-400">Target: {ann.target}</span>
+                      <span className="text-xs text-gray-400">• {ann.date}</span>
+                    </div>
+                    <p className="font-semibold text-sm text-[#0A2540]">{ann.title}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleTogglePublish(ann.id)}
+                      className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider border transition ${
+                        ann.published
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                          : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+                      }`}
+                    >
+                      {ann.published ? "● Live" : "○ Draft"}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAnnouncement(ann.id)}
+                      className="px-2.5 py-1 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 4: SUPERADMIN (ONLY VISIBLE WHEN LOGGED IN) ── */}
+        {activeTab === "superadmin" && isSuperAdminLoggedIn && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Header banner */}
+            <div className="bg-white border-l-4 border-amber-500 border border-gray-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-[#0A2540] flex items-center gap-2">
+                  <span>⚡</span> SuperAdministrator Specifications
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Root administrative access: User RBAC, Chapter Grant Approvals, Site-wide feature flags, and Security Audit Logs.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setAddAdminModalOpen(true)}
+                  className="px-4 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs uppercase tracking-wider transition"
+                >
+                  + Add Administrator
+                </button>
+                <button
+                  onClick={handleSuperAdminLogout}
+                  className="px-3 py-2 border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 font-semibold text-xs uppercase tracking-wider transition"
+                >
+                  🔒 Logout
+                </button>
+              </div>
+            </div>
+
+            {/* Section 1: Admin Users (RBAC) */}
+            <div className="bg-white border border-gray-200 shadow-xs">
+              <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h4 className="font-bold text-sm text-[#0A2540]">Administrative Users & Roles</h4>
+                <span className="text-xs font-mono text-gray-500">{adminUsers.length} total users</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-gray-50 text-gray-700 uppercase font-bold border-b border-gray-200">
+                    <tr>
+                      <th className="py-3 px-4">Name</th>
+                      <th className="py-3 px-4">Email</th>
+                      <th className="py-3 px-4">Role</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4">Last Activity</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {adminUsers.map((usr) => (
+                      <tr key={usr.id} className="hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-[#0A2540]">{usr.name}</td>
+                        <td className="py-3 px-4 text-gray-600 font-mono">{usr.email}</td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2 py-0.5 font-semibold text-[10px] uppercase ${
+                              usr.role === "SuperAdmin"
+                                ? "bg-amber-100 text-amber-900 border border-amber-200"
+                                : "bg-blue-50 text-blue-800 border border-blue-200"
+                            }`}
+                          >
+                            {usr.role}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2 py-0.5 font-semibold text-[10px] uppercase ${
+                              usr.status === "Active"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : "bg-red-50 text-red-700 border border-red-200"
+                            }`}
+                          >
+                            {usr.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-gray-400">{usr.lastLogin}</td>
+                        <td className="py-3 px-4 text-right space-x-2">
+                          <button
+                            onClick={() => handleToggleAdminStatus(usr.id)}
+                            className="px-2 py-1 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300"
+                          >
+                            Toggle Status
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAdmin(usr.id)}
+                            className="px-2 py-1 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Section 2: Chapter Grant Approvals & Feature Flags */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Chapter Grants */}
+              <div className="bg-white border border-gray-200 shadow-xs flex flex-col">
+                <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+                  <h4 className="font-bold text-sm text-[#0A2540]">Chapter Grant Requests</h4>
+                  <span className="text-xs text-amber-700 font-bold">
+                    {grants.filter((g) => g.status === "Pending Review").length} Pending
+                  </span>
+                </div>
+                <div className="divide-y divide-gray-200 p-4 space-y-3 flex-1 overflow-y-auto max-h-96">
+                  {grants.map((g) => (
+                    <div key={g.id} className="p-3 bg-gray-50 border border-gray-200 flex flex-col gap-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold text-[#0A2540] uppercase">
+                            {g.chapter}
+                          </span>
+                          <p className="text-xs font-bold text-gray-900 mt-0.5">{g.title}</p>
+                          <p className="text-[11px] text-gray-500">
+                            By {g.submittedBy} • {g.date}
+                          </p>
                         </div>
-                        <h4 className="font-serif font-bold text-base text-[--color-navy]">{ann.title}</h4>
-                        <p className="text-xs text-gray-500 mt-1">{ann.author} • {ann.date}</p>
+                        <div className="text-right">
+                          <p className="text-xs font-bold font-mono text-[#0A2540]">
+                            ₹{g.amountRequested.toLocaleString()}
+                          </p>
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 uppercase ${
+                              g.status === "Approved"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : g.status === "Pending Review"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {g.status}
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleTogglePublishAnnouncement(ann.id)}
-                          className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-                            ann.published
-                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                              : "bg-gray-100 text-gray-600 border border-gray-300"
-                          }`}
-                        >
-                          {ann.published ? "Live Banner" : "Draft"}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setAnnouncementsList((prev) => prev.filter((a) => a.id !== ann.id));
-                            triggerToast("Announcement removed.");
-                          }}
-                          className="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200 uppercase"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {g.status === "Pending Review" && (
+                        <div className="flex justify-end gap-2 pt-2 border-t border-gray-200">
+                          <button
+                            onClick={() => handleUpdateGrantStatus(g.id, "Approved")}
+                            className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleUpdateGrantStatus(g.id, "Rejected")}
+                            className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* ─── MODULE E: SUPERADMIN ROOT MODULES ─── */}
-            {activeTab.startsWith("superadmin-") && isSuperAdminElevated && (
-              <div className="border-2 border-amber-400 bg-white p-8 space-y-8 shadow-xl">
-                
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[--color-navy] text-[--color-gold] flex items-center justify-center text-xl font-bold">
-                      ⚡
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-serif font-bold text-[--color-navy]">
-                        {activeTab === "superadmin-overview" && "SuperAdmin Root Console"}
-                        {activeTab === "superadmin-rbac" && "Role-Based Access Control (RBAC)"}
-                        {activeTab === "superadmin-flags" && "Global Feature Flags"}
-                        {activeTab === "superadmin-treasury" && "Chapter Grants & Treasury Approval"}
-                        {activeTab === "superadmin-audit" && "Security Audit Ledger"}
-                        {activeTab === "superadmin-danger" && "Database Backups & Maintenance"}
-                      </h3>
-                      <p className="text-xs font-mono font-bold text-amber-700">ROOT CLEARANCE PRIVILEGES ACTIVE</p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleDemotePrivileges}
-                    className="px-4 py-2 border border-red-300 bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wider hover:bg-red-100"
-                  >
-                    🔒 Lock Root Session
-                  </button>
+              {/* Site Controls & Feature Flags */}
+              <div className="bg-white border border-gray-200 shadow-xs flex flex-col">
+                <div className="px-5 py-4 border-b border-gray-200">
+                  <h4 className="font-bold text-sm text-[#0A2540]">Website Feature Flags</h4>
                 </div>
-
-                {/* Sub-tab: Root Matrix */}
-                {activeTab === "superadmin-overview" && (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="p-4 bg-gray-50 border border-gray-200">
-                        <p className="text-xs font-bold uppercase text-gray-500">Active Admins</p>
-                        <p className="text-2xl font-bold text-[--color-navy] mt-1">{adminUsersList.length}</p>
-                      </div>
-                      <div className="p-4 bg-gray-50 border border-gray-200">
-                        <p className="text-xs font-bold uppercase text-gray-500">Pending Grants</p>
-                        <p className="text-2xl font-bold text-amber-700 mt-1">
-                          {grantsList.filter((g) => g.status === "Pending Review").length}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-gray-50 border border-gray-200">
-                        <p className="text-xs font-bold uppercase text-gray-500">Audit Logs</p>
-                        <p className="text-2xl font-bold text-[--color-navy] mt-1">{auditLogsList.length}</p>
-                      </div>
+                <div className="p-5 space-y-4 divide-y divide-gray-100 flex-1">
+                  <div className="flex items-center justify-between pt-2">
+                    <div>
+                      <p className="text-xs font-bold text-gray-800">Public Workshop Registrations</p>
+                      <p className="text-[11px] text-gray-500">Allow public non-members to register for events</p>
                     </div>
-
-                    <div className="border border-gray-200 p-6 bg-[#FAFAFA]">
-                      <h4 className="font-serif font-bold text-lg text-[--color-navy] mb-3">Quick Root Actions</h4>
-                      <div className="flex flex-wrap gap-3">
-                        <button
-                          onClick={() => setActiveTab("superadmin-rbac")}
-                          className="px-4 py-2 bg-[--color-navy] text-white text-xs font-bold uppercase tracking-wider hover:bg-[--color-gold] hover:text-[--color-navy]"
-                        >
-                          Manage RBAC & Admins
-                        </button>
-                        <button
-                          onClick={() => setActiveTab("superadmin-treasury")}
-                          className="px-4 py-2 bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-900"
-                        >
-                          Review Chapter Grants
-                        </button>
-                        <button
-                          onClick={() => setActiveTab("superadmin-flags")}
-                          className="px-4 py-2 border border-gray-300 bg-white text-xs font-bold uppercase tracking-wider hover:bg-gray-100"
-                        >
-                          Feature Toggles
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sub-tab: RBAC */}
-                {activeTab === "superadmin-rbac" && (
-                  <div className="space-y-4">
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => setShowInviteAdminModal(true)}
-                        className="px-4 py-2 border-2 border-[--color-navy] bg-[--color-navy] text-white text-xs font-bold uppercase tracking-wider hover:bg-[--color-gold] hover:text-[--color-navy]"
-                      >
-                        + Invite Admin
-                      </button>
-                    </div>
-                    <div className="border border-gray-200 overflow-x-auto">
-                      <table className="w-full text-left text-xs">
-                        <thead className="bg-[--color-navy] text-white uppercase font-bold">
-                          <tr>
-                            <th className="py-3 px-4">Admin Name</th>
-                            <th className="py-3 px-4">Role</th>
-                            <th className="py-3 px-4">Last Activity</th>
-                            <th className="py-3 px-4">Status</th>
-                            <th className="py-3 px-4 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          {adminUsersList.map((usr) => (
-                            <tr key={usr.id}>
-                              <td className="py-3 px-4 font-bold text-[--color-navy]">{usr.name} ({usr.email})</td>
-                              <td className="py-3 px-4"><span className="px-2 py-0.5 bg-blue-100 text-[--color-navy] font-bold">{usr.role}</span></td>
-                              <td className="py-3 px-4 text-gray-500 font-mono">{usr.lastLogin}</td>
-                              <td className="py-3 px-4"><span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold">{usr.status}</span></td>
-                              <td className="py-3 px-4 text-right">
-                                <button onClick={() => handleToggleUserStatus(usr.id)} className="text-red-600 font-bold hover:underline uppercase">Toggle</button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sub-tab: Feature Flags */}
-                {activeTab === "superadmin-flags" && (
-                  <div className="space-y-4">
-                    {[
-                      { key: "maintenanceMode", label: "Maintenance Mode", desc: "Display institutional maintenance banner to public visitors" },
-                      { key: "publicRegistrations", label: "Public Event Registrations", desc: "Allow non-IEEE students to register for technical workshops" },
-                      { key: "inductionDriveActive", label: "Annual Induction Drive Banner", desc: "Display join membership call-to-action on homepage" },
-                      { key: "vToolsAutoSync", label: "IEEE vTools Global API Sync", desc: "Automated two-way roster and officer synchronization" },
-                    ].map((flag) => (
-                      <div key={flag.key} className="p-4 border border-gray-200 bg-[#FAFAFA] flex items-center justify-between">
-                        <div>
-                          <h5 className="font-bold text-sm text-[--color-navy]">{flag.label}</h5>
-                          <p className="text-xs text-gray-500">{flag.desc}</p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setFlags((prev) => ({
-                              ...prev,
-                              [flag.key]: !prev[flag.key as keyof typeof flags],
-                            }));
-                            triggerToast(`Flag "${flag.label}" toggled.`);
-                          }}
-                          className={`px-6 py-2 text-xs font-bold tracking-wider uppercase transition-colors ${
-                            flags[flag.key as keyof typeof flags]
-                              ? "bg-[--color-navy] text-white"
-                              : "bg-gray-200 text-gray-600"
-                          }`}
-                        >
-                          {flags[flag.key as keyof typeof flags] ? "ENABLED" : "DISABLED"}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Sub-tab: Treasury & Grants */}
-                {activeTab === "superadmin-treasury" && (
-                  <div className="space-y-4">
-                    {grantsList.map((g) => (
-                      <div key={g.id} className="p-6 border border-gray-200 bg-white flex flex-col md:flex-row justify-between gap-4">
-                        <div>
-                          <span className="text-[10px] font-bold text-[--color-gold] uppercase tracking-wider">{g.chapter}</span>
-                          <h4 className="font-serif font-bold text-base text-[--color-navy] mt-1">{g.title}</h4>
-                          <p className="text-xs text-gray-600 mt-2 leading-relaxed">{g.purpose}</p>
-                          <p className="text-xs font-mono text-gray-400 mt-3">Submitted by: {g.submittedBy} • {g.date}</p>
-                        </div>
-                        <div className="text-right flex flex-col items-end justify-between shrink-0">
-                          <div>
-                            <p className="text-xs text-gray-500 uppercase tracking-wider">Requested</p>
-                            <p className="text-xl font-bold font-mono text-[--color-navy]">₹{g.amountRequested.toLocaleString()}</p>
-                          </div>
-                          {g.status === "Pending Review" && (
-                            <div className="flex gap-2 mt-4">
-                              <button
-                                onClick={() => handleUpdateGrant(g.id, "Approved")}
-                                className="px-4 py-1.5 bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-800"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => handleUpdateGrant(g.id, "Rejected")}
-                                className="px-4 py-1.5 bg-red-100 text-red-800 text-xs font-bold uppercase tracking-wider hover:bg-red-200"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Sub-tab: Audit Logs */}
-                {activeTab === "superadmin-audit" && (
-                  <div className="border border-gray-200 overflow-x-auto">
-                    <table className="w-full text-left text-xs font-mono">
-                      <thead className="bg-[--color-navy] text-white uppercase font-bold">
-                        <tr>
-                          <th className="py-3 px-4">Timestamp</th>
-                          <th className="py-3 px-4">Actor</th>
-                          <th className="py-3 px-4">Action</th>
-                          <th className="py-3 px-4">Target</th>
-                          <th className="py-3 px-4">IP Address</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {auditLogsList.map((log) => (
-                          <tr key={log.id}>
-                            <td className="py-3 px-4 text-gray-500">{log.timestamp}</td>
-                            <td className="py-3 px-4 font-bold text-[--color-navy]">{log.actor}</td>
-                            <td className="py-3 px-4 text-[--color-gold] font-bold">{log.action}</td>
-                            <td className="py-3 px-4 text-gray-700">{log.target}</td>
-                            <td className="py-3 px-4 text-gray-400">{log.ipAddress}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* Sub-tab: Danger Zone & Snapshots */}
-                {activeTab === "superadmin-danger" && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <button
-                      onClick={handleTriggerSnapshot}
-                      className="p-6 border border-gray-300 bg-[#FAFAFA] hover:bg-blue-50 text-left transition-colors"
+                      onClick={() => {
+                        setSiteFlags((f) => ({ ...f, publicRegistrations: !f.publicRegistrations }));
+                        showToast("Flag updated.");
+                      }}
+                      className={`px-3 py-1 text-xs font-bold uppercase transition ${
+                        siteFlags.publicRegistrations
+                          ? "bg-emerald-600 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
                     >
-                      <h5 className="font-bold text-sm text-[--color-navy] mb-1">💾 Export JSON Snapshot</h5>
-                      <p className="text-xs text-gray-500">Download complete branch database snapshot</p>
-                    </button>
-                    <button
-                      onClick={handlePurgeCache}
-                      className="p-6 border border-gray-300 bg-[#FAFAFA] hover:bg-yellow-50 text-left transition-colors"
-                    >
-                      <h5 className="font-bold text-sm text-[--color-navy] mb-1">⚡ Purge Edge Cache</h5>
-                      <p className="text-xs text-gray-500">Invalidate static Next.js ISR edge tags</p>
-                    </button>
-                    <button
-                      onClick={handleSyncVtools}
-                      className="p-6 border border-gray-300 bg-[#FAFAFA] hover:bg-emerald-50 text-left transition-colors"
-                    >
-                      <h5 className="font-bold text-sm text-[--color-navy] mb-1">🔄 Push to IEEE vTools</h5>
-                      <p className="text-xs text-gray-500">Sync all active officers and event registries</p>
+                      {siteFlags.publicRegistrations ? "Enabled" : "Disabled"}
                     </button>
                   </div>
-                )}
 
+                  <div className="flex items-center justify-between pt-4">
+                    <div>
+                      <p className="text-xs font-bold text-gray-800">Maintenance Mode</p>
+                      <p className="text-[11px] text-gray-500">Show maintenance notice on the homepage</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSiteFlags((f) => ({ ...f, maintenanceMode: !f.maintenanceMode }));
+                        showToast("Flag updated.");
+                      }}
+                      className={`px-3 py-1 text-xs font-bold uppercase transition ${
+                        siteFlags.maintenanceMode
+                          ? "bg-red-600 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      {siteFlags.maintenanceMode ? "Active" : "Inactive"}
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4">
+                    <div>
+                      <p className="text-xs font-bold text-gray-800">Annual Membership Drive Banner</p>
+                      <p className="text-[11px] text-gray-500">Highlight student branch recruitment campaign</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSiteFlags((f) => ({ ...f, inductionDriveBanner: !f.inductionDriveBanner }));
+                        showToast("Flag updated.");
+                      }}
+                      className={`px-3 py-1 text-xs font-bold uppercase transition ${
+                        siteFlags.inductionDriveBanner
+                          ? "bg-emerald-600 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      {siteFlags.inductionDriveBanner ? "Enabled" : "Disabled"}
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* ─────────────────────────────────────────────────────────────
-          5. MODALS & DRAWERS (HOMEPAGE DESIGN SYSTEM)
-         ───────────────────────────────────────────────────────────── */}
-
-      {/* 1. SuperAdmin PIN Modal */}
-      {showSecurityModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full p-8 border-2 border-[--color-navy] shadow-2xl relative">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">🛡️</span>
-              <h3 className="text-xl font-serif font-bold text-[--color-navy]">Root Clearance Passcode</h3>
             </div>
-            <p className="text-xs text-gray-500 mb-6">
-              Enter your elevated administrative passcode to access the SuperAdmin governance console.
-            </p>
+
+            {/* Section 3: Audit Ledger */}
+            <div className="bg-white border border-gray-200 shadow-xs">
+              <div className="px-5 py-4 border-b border-gray-200">
+                <h4 className="font-bold text-sm text-[#0A2540]">Recent Administrative Activity</h4>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead className="bg-gray-50 text-gray-700 uppercase font-bold border-b border-gray-200">
+                    <tr>
+                      <th className="py-2.5 px-4">Timestamp</th>
+                      <th className="py-2.5 px-4">User</th>
+                      <th className="py-2.5 px-4">Action</th>
+                      <th className="py-2.5 px-4">Target</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {auditLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-gray-50">
+                        <td className="py-2.5 px-4 text-gray-500">{log.timestamp}</td>
+                        <td className="py-2.5 px-4 font-semibold text-[#0A2540]">{log.user}</td>
+                        <td className="py-2.5 px-4 text-amber-800 font-bold">{log.action}</td>
+                        <td className="py-2.5 px-4 text-gray-600">{log.target}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 5: BACKUP & EXPORT ── */}
+        {activeTab === "backup" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white border border-gray-200 p-6 shadow-xs space-y-4">
+              <h3 className="text-base font-bold text-[#0A2540]">Export Website Data</h3>
+              <p className="text-sm text-gray-600">
+                Download a JSON snapshot of all current events, executive committee members, announcements, and administrative settings.
+              </p>
+              <button
+                onClick={handleExportJSON}
+                className="px-5 py-2.5 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs uppercase tracking-wider transition"
+              >
+                Download JSON Backup
+              </button>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-6 shadow-xs space-y-3">
+              <h3 className="text-base font-bold text-[#0A2540]">Overview Summary</h3>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-3 bg-gray-50 border border-gray-200">
+                  <p className="text-2xl font-bold text-[#0A2540]">{eventsList.length}</p>
+                  <p className="text-xs text-gray-500 uppercase mt-1">Events</p>
+                </div>
+                <div className="p-3 bg-gray-50 border border-gray-200">
+                  <p className="text-2xl font-bold text-[#0A2540]">{execomList.length}</p>
+                  <p className="text-xs text-gray-500 uppercase mt-1">Officers</p>
+                </div>
+                <div className="p-3 bg-gray-50 border border-gray-200">
+                  <p className="text-2xl font-bold text-[#0A2540]">
+                    {announcementsList.filter((a) => a.published).length}
+                  </p>
+                  <p className="text-xs text-gray-500 uppercase mt-1">Live Alerts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ── SUPERADMIN LOGIN MODAL ── */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white max-w-sm w-full p-6 border-2 border-[#0A2540] shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="text-center mb-4">
+              <div className="w-12 h-12 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-bold">
+                ⚡
+              </div>
+              <h3 className="text-base font-bold text-[#0A2540]">
+                SuperAdmin Login
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter your administrative PIN to access root specifications.
+              </p>
+            </div>
 
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleVerifyPin();
+                handleSuperAdminLogin();
               }}
               className="space-y-4"
             >
               <div>
                 <input
                   type="password"
-                  value={securityPinInput}
-                  onChange={(e) => {
-                    setSecurityPinInput(e.target.value);
-                    setPinError(false);
-                  }}
-                  placeholder="Enter Passcode (1884)"
-                  className="w-full px-4 py-3 border border-gray-300 text-center font-mono text-lg tracking-widest focus:outline-none focus:border-[--color-navy]"
                   autoFocus
+                  placeholder="Enter PIN (e.g. 1884)"
+                  value={pinInput}
+                  onChange={(e) => {
+                    setPinInput(e.target.value);
+                    setLoginError(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-center font-mono text-lg tracking-widest border border-gray-300 focus:outline-none focus:border-[#0A2540]"
                 />
-                {pinError && (
-                  <p className="text-xs text-red-600 font-semibold mt-1.5">
-                    Invalid passcode. Default root PIN is <span className="font-mono font-bold">1884</span>.
+                {loginError && (
+                  <p className="text-xs text-red-600 font-semibold mt-1.5 text-center">
+                    Invalid PIN. Please try again.
                   </p>
                 )}
               </div>
 
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="space-y-2">
                 <button
                   type="submit"
-                  className="w-full py-3 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
+                  className="w-full py-2.5 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs tracking-wider uppercase transition"
                 >
-                  Verify Clearance
+                  Login to SuperAdmin
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleVerifyPin("1884")}
-                  className="w-full py-2.5 border border-amber-300 bg-amber-50 text-amber-900 font-bold text-xs uppercase tracking-wider"
+                  onClick={() => handleSuperAdminLogin("1884")}
+                  className="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition"
                 >
-                  ⚡ Instant Demo Unlock (PIN: 1884)
+                  Quick Unlock (PIN: 1884)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowSecurityModal(false)}
-                  className="w-full py-2 text-xs font-bold text-gray-500 uppercase tracking-wider"
+                  onClick={() => {
+                    setShowLoginModal(false);
+                    setPinInput("");
+                    setLoginError(false);
+                  }}
+                  className="w-full py-1.5 text-xs text-gray-500 hover:text-gray-900 font-semibold transition"
                 >
                   Cancel
                 </button>
@@ -1400,55 +1267,59 @@ function AdminContent() {
         </div>
       )}
 
-      {/* 2. Event Modal */}
-      {showEventModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white max-xl w-full p-8 border-2 border-[--color-navy] shadow-2xl my-8">
-            <h3 className="text-xl font-serif font-bold text-[--color-navy] mb-6">
-              {editingEvent ? "Edit Workshop Record" : "Schedule New Workshop / Event"}
+      {/* ── EVENT MODAL (ADD / EDIT) ── */}
+      {eventModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white max-w-lg w-full p-6 border border-gray-300 shadow-xl my-8">
+            <h3 className="text-lg font-bold text-[#0A2540] mb-4">
+              {editingEvent ? "Edit Event" : "Create New Event"}
             </h3>
 
-            <form onSubmit={handleSaveEvent} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form onSubmit={handleSaveEvent} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-gray-700 mb-1">Event Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={eventForm.title || ""}
+                  onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                  placeholder="e.g. IoT Bootcamp 2026"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Event Title</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Slug URL *</label>
                   <input
                     type="text"
                     required
-                    value={eventFormData.title || ""}
-                    onChange={(e) => setEventFormData({ ...eventFormData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                    value={eventForm.slug || ""}
+                    onChange={(e) => setEventForm({ ...eventForm, slug: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Slug URL</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Date *</label>
                   <input
-                    type="text"
+                    type="date"
                     required
-                    value={eventFormData.slug || ""}
-                    onChange={(e) => setEventFormData({ ...eventFormData, slug: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                    value={eventForm.date || ""}
+                    onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={eventFormData.date || ""}
-                    onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Category</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Category</label>
                   <select
-                    value={eventFormData.category}
-                    onChange={(e) => setEventFormData({ ...eventFormData, category: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs"
+                    value={eventForm.category}
+                    onChange={(e) =>
+                      setEventForm({ ...eventForm, category: e.target.value as any })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 text-sm bg-white"
                   >
                     <option value="workshop">Workshop</option>
                     <option value="seminar">Seminar</option>
@@ -1457,52 +1328,65 @@ function AdminContent() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Status</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Status</label>
                   <select
-                    value={eventFormData.status}
-                    onChange={(e) => setEventFormData({ ...eventFormData, status: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs"
+                    value={eventForm.status}
+                    onChange={(e) =>
+                      setEventForm({ ...eventForm, status: e.target.value as any })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 text-sm bg-white"
                   >
                     <option value="upcoming">Upcoming</option>
-                    <option value="live">Live Now</option>
+                    <option value="live">Live</option>
                     <option value="past">Past</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Location</label>
+                <label className="block font-semibold text-gray-700 mb-1">Location</label>
                 <input
                   type="text"
-                  value={eventFormData.location || ""}
-                  onChange={(e) => setEventFormData({ ...eventFormData, location: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={eventForm.location || ""}
+                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+                  placeholder="CUSAT Campus, Kochi"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Description</label>
+                <label className="block font-semibold text-gray-700 mb-1">Short Description</label>
                 <textarea
                   rows={2}
-                  value={eventFormData.description || ""}
-                  onChange={(e) => setEventFormData({ ...eventFormData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={eventForm.description || ""}
+                  onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-gray-700 mb-1">Image URL</label>
+                <input
+                  type="text"
+                  value={eventForm.image || ""}
+                  onChange={(e) => setEventForm({ ...eventForm, image: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setShowEventModal(false)}
-                  className="px-4 py-2 border border-gray-300 text-xs font-bold uppercase tracking-wider"
+                  onClick={() => setEventModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
+                  className="px-5 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold transition"
                 >
-                  Save Record
+                  Save Event
                 </button>
               </div>
             </form>
@@ -1510,56 +1394,94 @@ function AdminContent() {
         </div>
       )}
 
-      {/* 3. ExCom Modal */}
-      {showExcomModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full p-8 border-2 border-[--color-navy] shadow-2xl">
-            <h3 className="text-xl font-serif font-bold text-[--color-navy] mb-6">
-              {editingExcom ? "Edit Officer Profile" : "Add Officer to Roster"}
+      {/* ── EXECOM MODAL (ADD / EDIT) ── */}
+      {execomModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full p-6 border border-gray-300 shadow-xl">
+            <h3 className="text-lg font-bold text-[#0A2540] mb-4">
+              {editingExecom ? "Edit Officer" : "Add ExCom Member"}
             </h3>
 
-            <form onSubmit={handleSaveExcom} className="space-y-4">
+            <form onSubmit={handleSaveExecom} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Full Name</label>
+                <label className="block font-semibold text-gray-700 mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
-                  value={excomFormData.name || ""}
-                  onChange={(e) => setExcomFormData({ ...excomFormData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={execomForm.name || ""}
+                  onChange={(e) => setExecomForm({ ...execomForm, name: e.target.value })}
+                  placeholder="e.g. Arjun Menon"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Role Title</label>
+                <label className="block font-semibold text-gray-700 mb-1">Role Title *</label>
                 <input
                   type="text"
                   required
-                  value={excomFormData.role || ""}
-                  onChange={(e) => setExcomFormData({ ...excomFormData, role: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={execomForm.role || ""}
+                  onChange={(e) => setExecomForm({ ...execomForm, role: e.target.value })}
+                  placeholder="e.g. Chairperson, Secretary"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-gray-700 mb-1">Branch / Dept</label>
+                  <input
+                    type="text"
+                    value={execomForm.branch || ""}
+                    onChange={(e) => setExecomForm({ ...execomForm, branch: e.target.value })}
+                    placeholder="Computer Science"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-gray-700 mb-1">Academic Year</label>
+                  <input
+                    type="text"
+                    value={execomForm.year || ""}
+                    onChange={(e) => setExecomForm({ ...execomForm, year: e.target.value })}
+                    placeholder="3rd Year B.Tech"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Branch</label>
+                <label className="block font-semibold text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={execomForm.email || ""}
+                  onChange={(e) => setExecomForm({ ...execomForm, email: e.target.value })}
+                  placeholder="name@cusat.ac.in"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-gray-700 mb-1">Photo URL</label>
                 <input
                   type="text"
-                  value={excomFormData.branch || ""}
-                  onChange={(e) => setExcomFormData({ ...excomFormData, branch: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={execomForm.photo || ""}
+                  onChange={(e) => setExecomForm({ ...execomForm, photo: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setShowExcomModal(false)}
-                  className="px-4 py-2 border border-gray-300 text-xs font-bold uppercase tracking-wider"
+                  onClick={() => setExecomModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
+                  className="px-5 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold transition"
                 >
                   Save Officer
                 </button>
@@ -1569,42 +1491,58 @@ function AdminContent() {
         </div>
       )}
 
-      {/* 4. Announcements Modal */}
-      {showAnnouncementModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full p-8 border-2 border-[--color-navy] shadow-2xl">
-            <h3 className="text-xl font-serif font-bold text-[--color-navy] mb-6">Broadcast Bulletin Announcement</h3>
+      {/* ── ANNOUNCEMENT MODAL ── */}
+      {announcementModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full p-6 border border-gray-300 shadow-xl">
+            <h3 className="text-lg font-bold text-[#0A2540] mb-4">New Announcement</h3>
 
-            <form onSubmit={handleSaveAnnouncement} className="space-y-4">
+            <form onSubmit={handleSaveAnnouncement} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Message Content</label>
+                <label className="block font-semibold text-gray-700 mb-1">Content / Title *</label>
                 <textarea
                   rows={3}
                   required
-                  value={announcementFormData.title}
-                  onChange={(e) => setAnnouncementFormData({ ...announcementFormData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={announcementForm.title}
+                  onChange={(e) =>
+                    setAnnouncementForm({ ...announcementForm, title: e.target.value })
+                  }
+                  placeholder="Enter notice text..."
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Category</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Category</label>
                   <select
-                    value={announcementFormData.category}
-                    onChange={(e) => setAnnouncementFormData({ ...announcementFormData, category: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs"
+                    value={announcementForm.category}
+                    onChange={(e) =>
+                      setAnnouncementForm({
+                        ...announcementForm,
+                        category: e.target.value as any,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 text-sm bg-white"
                   >
                     <option value="Urgent Banner">Urgent Banner</option>
                     <option value="General Notice">General Notice</option>
                     <option value="Workshop Alert">Workshop Alert</option>
+                    <option value="Recruitment">Recruitment</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Target</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Target Audience</label>
                   <select
-                    value={announcementFormData.target}
-                    onChange={(e) => setAnnouncementFormData({ ...announcementFormData, target: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 text-xs"
+                    value={announcementForm.target}
+                    onChange={(e) =>
+                      setAnnouncementForm({
+                        ...announcementForm,
+                        target: e.target.value as any,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 text-sm bg-white"
                   >
                     <option value="Public Site">Public Site</option>
                     <option value="All Members">All Members</option>
@@ -1616,16 +1554,16 @@ function AdminContent() {
               <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setShowAnnouncementModal(false)}
-                  className="px-4 py-2 border border-gray-300 text-xs font-bold uppercase tracking-wider"
+                  onClick={() => setAnnouncementModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
+                  className="px-5 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold transition"
                 >
-                  Broadcast Live
+                  Publish Notice
                 </button>
               </div>
             </form>
@@ -1633,60 +1571,66 @@ function AdminContent() {
         </div>
       )}
 
-      {/* 5. Invite Admin Modal */}
-      {showInviteAdminModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full p-8 border-2 border-[--color-navy] shadow-2xl">
-            <h3 className="text-xl font-serif font-bold text-[--color-navy] mb-6">Invite Administrator</h3>
+      {/* ── ADD ADMIN MODAL (SUPERADMIN) ── */}
+      {addAdminModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full p-6 border border-gray-300 shadow-xl">
+            <h3 className="text-lg font-bold text-[#0A2540] mb-4">Add Administrator</h3>
 
-            <form onSubmit={handleSaveInviteAdmin} className="space-y-4">
+            <form onSubmit={handleSaveAdmin} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Full Name</label>
+                <label className="block font-semibold text-gray-700 mb-1">Admin Full Name *</label>
                 <input
                   type="text"
                   required
-                  value={inviteAdminFormData.name}
-                  onChange={(e) => setInviteAdminFormData({ ...inviteAdminFormData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={adminForm.name}
+                  onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })}
+                  placeholder="e.g. Rahul Sharma"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Email Address</label>
+                <label className="block font-semibold text-gray-700 mb-1">Email Address *</label>
                 <input
                   type="email"
                   required
-                  value={inviteAdminFormData.email}
-                  onChange={(e) => setInviteAdminFormData({ ...inviteAdminFormData, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs focus:outline-none focus:border-[--color-navy]"
+                  value={adminForm.email}
+                  onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                  placeholder="rahul@cusat.ac.in"
+                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#0A2540]"
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-[--color-navy] uppercase tracking-wider mb-1">Role</label>
+                <label className="block font-semibold text-gray-700 mb-1">Role Assignment</label>
                 <select
-                  value={inviteAdminFormData.role}
-                  onChange={(e) => setInviteAdminFormData({ ...inviteAdminFormData, role: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs"
+                  value={adminForm.role}
+                  onChange={(e) =>
+                    setAdminForm({ ...adminForm, role: e.target.value as AdminUser["role"] })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 text-sm bg-white"
                 >
                   <option value="Branch Admin">Branch Admin</option>
                   <option value="Treasurer">Treasurer</option>
                   <option value="Technical Lead">Technical Lead</option>
-                  <option value="SuperAdmin">SuperAdmin</option>
+                  <option value="SuperAdmin">SuperAdmin (Full Root)</option>
                 </select>
               </div>
 
               <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setShowInviteAdminModal(false)}
-                  className="px-4 py-2 border border-gray-300 text-xs font-bold uppercase tracking-wider"
+                  onClick={() => setAddAdminModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
+                  className="px-5 py-2 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold transition"
                 >
-                  Send Invitation
+                  Create Admin
                 </button>
               </div>
             </form>
@@ -1694,66 +1638,74 @@ function AdminContent() {
         </div>
       )}
 
-      {/* 6. Attendee Drawer */}
-      {showAttendeeDrawer && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex justify-end">
-          <div className="bg-white w-full max-w-md h-full shadow-2xl p-8 flex flex-col justify-between overflow-y-auto border-l-4 border-[--color-navy]">
+      {/* ── ATTENDEE DRAWER ── */}
+      {attendeeModalEvent && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-200 mb-4">
                 <div>
-                  <h4 className="font-serif font-bold text-lg text-[--color-navy]">{showAttendeeDrawer.title}</h4>
-                  <p className="text-xs text-gray-500 font-mono">{showAttendeeDrawer.date} • Registered Roster</p>
+                  <h4 className="font-bold text-base text-[#0A2540]">
+                    {attendeeModalEvent.title}
+                  </h4>
+                  <p className="text-xs text-gray-500">Attendee Roster</p>
                 </div>
                 <button
-                  onClick={() => setShowAttendeeDrawer(null)}
-                  className="text-gray-400 hover:text-[--color-navy] text-xl font-bold"
+                  onClick={() => setAttendeeModalEvent(null)}
+                  className="text-gray-400 hover:text-gray-900 text-lg font-bold"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {[
-                  { name: "Rahul S.", email: "rahul.s@cusat.ac.in", branch: "CSE 3rd Yr", paid: true },
-                  { name: "Ananya P.", email: "ananya.p@cusat.ac.in", branch: "ECE 2nd Yr", paid: true },
-                  { name: "Kiran Joseph", email: "kiran.j@cusat.ac.in", branch: "EEE 4th Yr", paid: false },
-                  { name: "Sneha V.", email: "sneha.v@cusat.ac.in", branch: "IT 1st Yr", paid: true },
+                  { name: "Rahul S.", email: "rahul.s@cusat.ac.in", branch: "CSE 3rd Yr", status: "Confirmed" },
+                  { name: "Ananya P.", email: "ananya.p@cusat.ac.in", branch: "ECE 2nd Yr", status: "Confirmed" },
+                  { name: "Kiran Joseph", email: "kiran.j@cusat.ac.in", branch: "EEE 4th Yr", status: "Pending" },
+                  { name: "Sneha V.", email: "sneha.v@cusat.ac.in", branch: "IT 1st Yr", status: "Confirmed" },
                 ].map((att, idx) => (
-                  <div key={idx} className="p-4 bg-[#FAFAFA] border border-gray-200 flex items-center justify-between text-xs">
+                  <div
+                    key={idx}
+                    className="p-3 bg-gray-50 border border-gray-200 flex items-center justify-between text-xs"
+                  >
                     <div>
-                      <p className="font-bold text-[--color-navy]">{att.name}</p>
+                      <p className="font-semibold text-gray-800">{att.name}</p>
                       <p className="text-gray-500 text-[11px] font-mono">{att.email} • {att.branch}</p>
                     </div>
-                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase ${
-                      att.paid ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
-                    }`}>
-                      {att.paid ? "Verified" : "Pending"}
+                    <span
+                      className={`px-2 py-0.5 text-[10px] font-semibold uppercase ${
+                        att.status === "Confirmed"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-amber-100 text-amber-800"
+                      }`}
+                    >
+                      {att.status}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-6 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-200">
               <button
-                onClick={() => triggerToast("📥 Registrations roster exported as CSV.")}
-                className="w-full py-3 border-2 border-[--color-navy] bg-[--color-navy] text-white font-bold text-xs tracking-widest uppercase hover:bg-[--color-gold] hover:text-[--color-navy] transition-colors"
+                onClick={() => showToast("Attendee CSV exported.")}
+                className="w-full py-2.5 bg-[#0A2540] hover:bg-[#F2A900] hover:text-[#0A2540] text-white font-semibold text-xs tracking-wider uppercase transition"
               >
-                Download Attendee List (CSV)
+                Export CSV
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
 export default function AdminPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
-      <AdminContent />
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+      <AdminDashboard />
     </Suspense>
   );
 }
