@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { events as initialEvents, Event } from "@/data/events";
@@ -256,7 +256,7 @@ const INITIAL_GRANTS: GrantRequest[] = [
   },
 ];
 
-export default function AdminPage() {
+function AdminContent() {
   const searchParams = useSearchParams();
 
   // Navigation State
@@ -1747,5 +1747,13 @@ export default function AdminPage() {
       )}
 
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <AdminContent />
+    </Suspense>
   );
 }

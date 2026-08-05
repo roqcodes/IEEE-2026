@@ -29,7 +29,7 @@ export const events: Event[] = [
     description:
       "A 48-hour pan-India hackathon challenging students to build solutions in AI, IoT, and sustainability.",
     body: "TechSprint 2025 is the flagship annual hackathon organized by IEEE CUSAT Student Branch. Teams of 2–4 will compete over 48 hours to prototype impactful solutions across three tracks: Artificial Intelligence, Internet of Things, and Sustainability & Green Tech. Prizes worth ₹1,50,000 are up for grabs along with internship opportunities with partner companies.",
-    image: "/images/events/techsprint.jpg",
+    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop",
     category: "competition",
     status: "upcoming",
     registrationLink: "https://forms.google.com",
@@ -43,7 +43,7 @@ export const events: Event[] = [
     description:
       "Hands-on two-day workshop covering ESP32, MQTT, and real-world sensor integrations.",
     body: "This intensive two-day workshop walks participants through the full IoT development stack — from hardware (ESP32, sensors, actuators) to cloud (AWS IoT Core, MQTT). All components and kits are provided. Open to all branches; no prior hardware experience required.",
-    image: "/images/events/iot-workshop.jpg",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
     category: "workshop",
     status: "upcoming",
     registrationLink: "https://forms.google.com",
@@ -56,7 +56,7 @@ export const events: Event[] = [
     description:
       "Industry experts from Google DeepMind and OpenAI discuss the current and future landscape of AI.",
     body: "This virtual seminar series brought together leading AI researchers and practitioners. Sessions covered large language models, responsible AI, and career pathways in machine learning. Over 600 students attended across 3 sessions.",
-    image: "/images/events/ai-seminar.jpg",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop",
     category: "seminar",
     status: "past",
   },
@@ -68,7 +68,7 @@ export const events: Event[] = [
     description:
       "A team-based competitive programming relay where code is passed between teammates in timed rounds.",
     body: "Code Relay 2024 saw 35 teams battle through 5 programming rounds over 3 hours. Problems ranged from greedy algorithms to dynamic programming. The winning team cracked all 15 problems within the time limit.",
-    image: "/images/events/code-relay.jpg",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop",
     category: "competition",
     status: "past",
   },
@@ -79,7 +79,7 @@ export const events: Event[] = [
     location: "Main Auditorium, CUSAT",
     description:
       "Welcome ceremony for new students with an introduction to IEEE and the student branch activities.",
-    image: "/images/events/orientation.jpg",
+    image: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop",
     category: "social",
     status: "past",
   },
@@ -91,7 +91,7 @@ export const events: Event[] = [
     location: "Electronics Lab, CUSAT",
     description:
       "Beginner-friendly bootcamp on schematic design and PCB layout using KiCad.",
-    image: "/images/events/pcb-design.jpg",
+    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=2070&auto=format&fit=crop",
     category: "workshop",
     status: "past",
   },
