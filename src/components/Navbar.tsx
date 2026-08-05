@@ -18,6 +18,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const isHome = pathname === "/";
   // On home, it's transparent (unless scrolled). On other pages, always solid white.
   const isSolid = !isHome || scrolled;
@@ -58,7 +62,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {/* Search Icon */}
             <button
               className={`w-10 h-10 border flex items-center justify-center transition-colors ${
@@ -98,11 +102,12 @@ export default function Navbar() {
       {menuOpen && (
         <div className="bg-white border-b border-[--color-border] absolute top-full left-0 w-full shadow-lg lg:hidden">
           <ul className="flex flex-col p-4">
-            <li><Link href="/" className="block py-3 text-[--color-navy] font-semibold border-b">Home</Link></li>
-            <li><Link href="/about" className="block py-3 text-[--color-navy] font-semibold border-b">About</Link></li>
-            <li><Link href="/events" className="block py-3 text-[--color-navy] font-semibold border-b">Events</Link></li>
-            <li><Link href="/societies" className="block py-3 text-[--color-navy] font-semibold border-b">Societies</Link></li>
-            <li><Link href="/gallery" className="block py-3 text-[--color-navy] font-semibold">Gallery</Link></li>
+            <li><Link href="/" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Home</Link></li>
+            <li><Link href="/about" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">About</Link></li>
+            <li><Link href="/events" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Events</Link></li>
+            <li><Link href="/societies" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Societies</Link></li>
+            <li><Link href="/gallery" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Gallery</Link></li>
+            <li><Link href="/contact" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold">Contact</Link></li>
           </ul>
         </div>
       )}

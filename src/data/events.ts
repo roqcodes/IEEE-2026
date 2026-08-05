@@ -15,7 +15,7 @@ export interface Event {
   body?: string;          // full description (used in detail page)
   image: string;          // path relative to /public or absolute URL
   category: "workshop" | "seminar" | "competition" | "social" | "other";
-  status: "upcoming" | "past";
+  status: "upcoming" | "past" | "live";
   registrationLink?: string;
 }
 

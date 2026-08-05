@@ -36,13 +36,11 @@ export default function Footer() {
             <h3 className="text-sm font-bold tracking-wider mb-6 text-[--color-navy]">
               QUICK LINKS
             </h3>
-            <ul className="space-y-3 text-sm text-[--color-muted]">
-              <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Join or Renew</Link></li>
-              <li><Link href="/events" className="hover:text-[--color-navy] hover:underline transition-colors">Events & Workshops</Link></li>
-              <li><Link href="/societies" className="hover:text-[--color-navy] hover:underline transition-colors">Explore Societies</Link></li>
-              <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Digital Library</Link></li>
-              <li><Link href="#" className="hover:text-[--color-navy] hover:underline transition-colors">Spectrum Magazine</Link></li>
-            </ul>
+              <ul className="space-y-3 text-sm text-[--color-muted]">
+                <li><Link href="/join" className="hover:text-[--color-navy] hover:underline transition-colors">Join or Renew</Link></li>
+                <li><Link href="/events" className="hover:text-[--color-navy] hover:underline transition-colors">Events & Workshops</Link></li>
+                <li><Link href="/societies" className="hover:text-[--color-navy] hover:underline transition-colors">Explore Societies</Link></li>
+              </ul>
           </div>
 
           {/* Column 3: FOLLOW US */}
