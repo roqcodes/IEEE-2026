@@ -45,6 +45,7 @@ export default function ContactPage() {
         breadcrumb="Reach Out"
         title="Contact Us"
         subtitle="Have a question, suggestion, or want to collaborate? We'd love to hear from you."
+        accentColor="#00629B"
       />
 
       <section className="relative border-t border-gray-200 py-24" aria-label="Contact section">

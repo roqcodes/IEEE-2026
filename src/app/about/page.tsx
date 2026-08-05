@@ -42,34 +42,12 @@ const borderColors = ['border-red-200', 'border-blue-200', 'border-green-200', '
 export default function AboutPage() {
   return (
     <>
-      <style>{`
-        @keyframes slideDownBar {
-          from { transform: scaleY(0); transform-origin: top; opacity: 0; }
-          to { transform: scaleY(1); transform-origin: top; opacity: 1; }
-        }
-        @keyframes slideRightLine {
-          from { transform: scaleX(0); transform-origin: left; opacity: 0; }
-          to { transform: scaleX(1); transform-origin: left; opacity: 1; }
-        }
-        .animate-bar-down { animation: slideDownBar 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-        .animate-line-right { animation: slideRightLine 3.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards; opacity: 0; }
-      `}</style>
-      <div className="relative">
-        <div 
-          className="absolute top-20 left-0 bottom-0 w-3 md:w-8 lg:w-12 bg-[#0085CA] z-40 shadow-[4px_0_15px_rgba(0,0,0,0.1)] animate-bar-down"
-          style={{ borderBottomRightRadius: '16px' }}
-          aria-hidden="true"
-        />
-        <div 
-          className="absolute top-20 left-0 w-full h-[6px] bg-[#0085CA] z-40 animate-line-right"
-          aria-hidden="true"
-        />
-        <PageHeader
-          breadcrumb="About Us"
-          title="About IEEE CUSAT SB"
-          subtitle="Our story, mission, and the people who make it happen."
-        />
-      </div>
+      <PageHeader
+        breadcrumb="About Us"
+        title="About IEEE CUSAT SB"
+        subtitle="Our story, mission, and the people who make it happen."
+        accentColor="#0085CA"
+      />
 
       {/* ── What is IEEE? ── */}
       <section className="relative border-t border-gray-200 py-24" aria-labelledby="ieee-heading">

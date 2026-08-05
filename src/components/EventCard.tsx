@@ -43,7 +43,7 @@ export default function EventCard({ event, compact = false }: EventCardProps) {
   const { month, day } = formatDateStr(event.date);
 
   return (
-    <article className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-white border border-[--color-border] h-full rounded-[32px] overflow-hidden">
+    <article className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-white border border-[--color-border] h-full overflow-hidden">
       {/* ── Event Image ── */}
       <div
         className="w-full relative overflow-hidden flex-shrink-0 bg-gray-100"

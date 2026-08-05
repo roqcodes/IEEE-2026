@@ -120,37 +120,43 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start relative">
-            <Link href="#" className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-yellow-50">
-              <div className="w-full aspect-[4/3] bg-gray-200 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            <Link href="#" className="group flex flex-col h-full shadow-sm hover:shadow-xl transition-shadow bg-[#FDF1D8]">
+              <div className="w-full aspect-[16/10] bg-gray-200 overflow-hidden">
                 <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" alt="Semiconductors" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
-              <div className="p-6 md:p-8 md:pb-12 bg-[#FDF1D8]">
-                <p className="text-black font-bold text-[11px] uppercase tracking-[0.15em] mb-4">SEMICONDUCTORS</p>
-                <h3 className="text-[#222222] text-[22px] md:text-[24px] font-normal leading-[1.3] font-sans mb-12">Optical Tech Would Update a Robot's AI on the Fly</h3>
-                <p className="text-[#555555] text-[12px] font-sans">26 Jul 2026</p>
+              <div className="p-6 md:p-8 flex-1 flex flex-col justify-between bg-[#FDF1D8]">
+                <div>
+                  <p className="text-black font-bold text-[11px] uppercase tracking-[0.15em] mb-4">SEMICONDUCTORS</p>
+                  <h3 className="text-[#222222] text-[20px] md:text-[22px] font-normal leading-[1.3] font-sans mb-8">Optical Tech Would Update a Robot's AI on the Fly</h3>
+                </div>
+                <p className="text-[#555555] text-[12px] font-sans mt-auto">26 Jul 2026</p>
               </div>
             </Link>
 
-            <Link href="#" className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-yellow-50">
+            <Link href="#" className="group flex flex-col h-full shadow-sm hover:shadow-xl transition-shadow bg-[#FDF1D8]">
               <div className="w-full aspect-[16/10] bg-gray-200 overflow-hidden">
                 <img src="https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?q=80&w=1974&auto=format&fit=crop" alt="Aerospace" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
-              <div className="p-6 bg-[#FDF1D8]">
-                <p className="text-black font-bold text-[11px] uppercase tracking-[0.15em] mb-4">AEROSPACE</p>
-                <h3 className="text-[#222222] text-[20px] font-normal leading-[1.3] font-sans mb-12">Poetry for Engineers: A Martian Rover Sends a Postcard Home</h3>
-                <p className="text-[#555555] text-[12px] font-sans">25 Jul 2026</p>
+              <div className="p-6 md:p-8 flex-1 flex flex-col justify-between bg-[#FDF1D8]">
+                <div>
+                  <p className="text-black font-bold text-[11px] uppercase tracking-[0.15em] mb-4">AEROSPACE</p>
+                  <h3 className="text-[#222222] text-[20px] md:text-[22px] font-normal leading-[1.3] font-sans mb-8">Poetry for Engineers: A Martian Rover Sends a Postcard Home</h3>
+                </div>
+                <p className="text-[#555555] text-[12px] font-sans mt-auto">25 Jul 2026</p>
               </div>
             </Link>
 
-            <Link href="#" className="group flex flex-col shadow-sm hover:shadow-xl transition-shadow bg-yellow-50">
+            <Link href="#" className="group flex flex-col h-full shadow-sm hover:shadow-xl transition-shadow bg-[#FDF1D8]">
               <div className="w-full aspect-[16/10] bg-gray-200 overflow-hidden">
                 <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop" alt="Robotics" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
-              <div className="p-6 bg-[#FDF1D8]">
-                <p className="text-black font-bold text-[11px] uppercase tracking-[0.15em] mb-4">ROBOTICS</p>
-                <h3 className="text-[#222222] text-[20px] font-normal leading-[1.3] font-sans mb-12">Video Friday: An Italian Humanoid Comes to Life</h3>
-                <p className="text-[#555555] text-[12px] font-sans">24 Jul 2026</p>
+              <div className="p-6 md:p-8 flex-1 flex flex-col justify-between bg-[#FDF1D8]">
+                <div>
+                  <p className="text-black font-bold text-[11px] uppercase tracking-[0.15em] mb-4">ROBOTICS</p>
+                  <h3 className="text-[#222222] text-[20px] md:text-[22px] font-normal leading-[1.3] font-sans mb-8">Video Friday: An Italian Humanoid Comes to Life</h3>
+                </div>
+                <p className="text-[#555555] text-[12px] font-sans mt-auto">24 Jul 2026</p>
               </div>
             </Link>
           </div>

@@ -4,13 +4,36 @@ interface PageHeaderProps {
   breadcrumb?: string;
   title: string;
   subtitle?: string;
+  accentColor?: string;
 }
 
-export default function PageHeader({ breadcrumb, title, subtitle }: PageHeaderProps) {
+export default function PageHeader({
+  breadcrumb,
+  title,
+  subtitle,
+  accentColor = "#00629B",
+}: PageHeaderProps) {
   return (
-    <section className="py-16 sm:py-24 bg-white relative border-t border-gray-200">
-      <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative bg-white pt-32 sm:pt-36 pb-16 sm:pb-24 border-t border-gray-200 overflow-hidden">
+      {/* Decorative Top Line below fixed navbar */}
+      <div
+        className="absolute top-20 left-0 w-full h-[6px] z-20 animate-line-right pointer-events-none"
+        style={{ backgroundColor: accentColor }}
+        aria-hidden="true"
+      />
+
+      {/* Decorative Left Sharp Accent Bar */}
+      <div
+        className="absolute top-20 left-0 bottom-0 w-3 md:w-5 lg:w-6 z-20 shadow-[4px_0_15px_rgba(0,0,0,0.06)] animate-bar-down pointer-events-none"
+        style={{ backgroundColor: accentColor }}
+        aria-hidden="true"
+      />
+
+      {/* Section Divider Top Center Notch */}
+      <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10" />
+
+      {/* Content Container - generous padding ensuring text never collides with the left bar */}
+      <div className="max-w-7xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 relative z-30">
         {breadcrumb && (
           <p className="text-sm text-[--color-gold] uppercase tracking-widest font-bold mb-4">
             {breadcrumb}

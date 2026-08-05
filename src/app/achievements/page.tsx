@@ -39,6 +39,7 @@ export default function AchievementsPage() {
         breadcrumb="Our Story"
         title="Achievements"
         subtitle="A proud record of awards, recognitions, and milestones that define IEEE CUSAT Student Branch."
+        accentColor="#F2A900"
       />
 
       {/* ── Timeline ── */}

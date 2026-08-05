@@ -20,6 +20,7 @@ export default function ExecomPage() {
         breadcrumb="Our Team"
         title="Executive Committee"
         subtitle="Meet the dedicated team leading IEEE CUSAT Student Branch this year."
+        accentColor="#00629B"
       />
 
       {/* ── Leadership ── */}

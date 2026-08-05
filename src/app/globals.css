@@ -29,3 +29,22 @@
     @apply w-[2px] h-[40px] bg-[--color-gold] inline-block transform rotate-12;
   }
 }
+
+@keyframes slideDownBar {
+  from { transform: scaleY(0); transform-origin: top; opacity: 0; }
+  to { transform: scaleY(1); transform-origin: top; opacity: 1; }
+}
+
+@keyframes slideRightLine {
+  from { transform: scaleX(0); transform-origin: left; opacity: 0; }
+  to { transform: scaleX(1); transform-origin: left; opacity: 1; }
+}
+
+.animate-bar-down {
+  animation: slideDownBar 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-line-right {
+  animation: slideRightLine 2.5s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+  opacity: 0;
+}

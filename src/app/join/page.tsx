@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import PageHeader from "@/components/PageHeader";
 
 export const metadata: Metadata = {
   title: "Join Now",
@@ -9,18 +10,12 @@ export const metadata: Metadata = {
 export default function JoinPage() {
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <section className="relative border-t border-gray-200 py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">
-            Join IEEE CUSAT Student Branch
-          </h1>
-          <p className="text-lg md:text-xl max-w-2xl text-[--color-charcoal] leading-relaxed">
-            Become a part of the world's largest technical professional organization for the advancement of technology.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        breadcrumb="Membership"
+        title="Join IEEE CUSAT Student Branch"
+        subtitle="Become a part of the world's largest technical professional organization for the advancement of technology."
+        accentColor="#00629B"
+      />
 
       {/* Main Content */}
       <section className="relative border-t border-gray-200 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
