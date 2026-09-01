@@ -48,7 +48,7 @@ export default function HomeHero() {
 
   return (
     <section
-      className="relative overflow-hidden bg-ieee-sky-muted h-svh min-h-svh max-h-svh flex flex-col"
+      className="relative overflow-hidden bg-ieee-sky-muted h-[100dvh] min-h-[100dvh] max-h-[100dvh] lg:h-svh lg:min-h-svh lg:max-h-svh flex flex-col"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-label="Welcome"
@@ -74,12 +74,12 @@ export default function HomeHero() {
         <HeroNetworkMap className="h-full" />
       </div>
 
-      <div className="relative z-10 flex-1 flex items-center justify-center min-h-0 w-full overflow-y-auto">
-        <div className="container-editorial w-full pl-7 pr-4 sm:pl-10 sm:pr-6 lg:pl-14 lg:pr-10 py-12 sm:py-14 lg:py-10">
+      <div className="relative z-10 flex-1 flex max-lg:items-start lg:items-center max-lg:justify-start lg:justify-center min-h-0 w-full overflow-y-auto">
+        <div className="container-editorial w-full pl-7 pr-4 sm:pl-10 sm:pr-6 lg:pl-14 lg:pr-10 pt-hero-mobile lg:pt-0 pb-12 sm:pb-14 lg:py-10">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center w-full">
             <div className="lg:col-span-7 xl:col-span-7 flex flex-col max-lg:gap-0">
               <FadeIn className="max-lg:order-1">
-                <div className="flex items-center gap-3 mb-5 sm:mb-6 max-lg:pt-2 sm:max-lg:pt-4">
+                <div className="flex items-center gap-3 mb-5 sm:mb-6">
                 <span className="h-px w-8 bg-ieee-blue" aria-hidden="true" />
                 <p className="section-eyebrow mb-0">IEEE CUSAT Student Branch</p>
               </div>

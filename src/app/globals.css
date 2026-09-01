@@ -143,6 +143,16 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
+  .pt-hero-mobile {
+    padding-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+  }
+
+  @media (min-width: 640px) {
+    .pt-hero-mobile {
+      padding-top: calc(5rem + env(safe-area-inset-top, 0px));
+    }
+  }
+
   .eyebrow {
     @apply text-[10px] font-semibold uppercase tracking-[0.2em] text-ieee-blue;
   }
