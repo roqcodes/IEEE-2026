@@ -44,7 +44,7 @@ export default function AchievementsPage() {
           {sortedYears.map((year) => (
             <div key={year}>
               <div className="flex items-center gap-6 mb-8">
-                <span className="text-caption px-4 py-2 bg-ieee-blue text-white">{year}</span>
+                <span className="year-badge">{year}</span>
                 <div className="flex-1 h-px bg-ieee-border" aria-hidden="true" />
               </div>
 

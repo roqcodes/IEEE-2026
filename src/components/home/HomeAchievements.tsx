@@ -31,21 +31,22 @@ export default function HomeAchievements() {
         </div>
 
         <div className="grid lg:grid-cols-12 gap-5">
-          <Reveal className="lg:col-span-7">
-            <PremiumCard as="article">
-              <div className="grid md:grid-cols-2 h-full">
+          <Reveal className="lg:col-span-7 lg:self-start">
+            <PremiumCard as="article" className="!h-auto">
+              <div className="flex flex-col">
                 {featured.image && (
-                  <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[300px] bg-gradient-to-br from-ieee-sky to-ieee-sky-muted">
+                  <div className="bg-gradient-to-br from-ieee-sky to-ieee-sky-muted border-b border-ieee-border/60 p-5 sm:p-6 lg:p-8">
                     <Image
                       src={featured.image}
                       alt={featured.title}
-                      fill
-                      className="object-contain p-8 transition-transform duration-200 ease-linear delay-0 group-hover:scale-[1.02]"
-                      sizes="(max-width: 768px) 100vw, 35vw"
+                      width={1980}
+                      height={1530}
+                      className="mx-auto block h-auto w-full max-w-md drop-shadow-[0_10px_28px_rgba(0,59,102,0.14)] transition-transform duration-200 ease-linear delay-0 group-hover:scale-[1.02]"
+                      sizes="(max-width: 1024px) 90vw, 28rem"
                     />
                   </div>
                 )}
-                <div className="p-8 lg:p-10 flex flex-col justify-center">
+                <div className="flex flex-col justify-center p-8 lg:p-10 min-w-0">
                   {featured.year && (
                     <span className="text-caption mb-4">{featured.year}</span>
                   )}

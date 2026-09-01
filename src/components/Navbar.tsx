@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import PremiumButton from "@/components/home/PremiumButton";
 
 const links = [
+  { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/events", label: "Events" },
   { href: "/societies", label: "Chapters" },
@@ -51,10 +54,16 @@ export default function Navbar() {
         )}
       >
         <div className="container-editorial flex items-center justify-between h-16 lg:h-20">
-          <Link href="/" className="flex flex-col leading-none group">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.22em] opacity-60">
-              IEEE
-            </span>
+          <Link href="/" className="flex items-center gap-2.5 group min-w-0">
+            <Image
+              src="/ieee.webp"
+              alt="IEEE"
+              width={1024}
+              height={340}
+              priority
+              className="h-8 lg:h-10 w-auto group-hover:opacity-80 transition-opacity"
+              style={{ width: "auto" }}
+            />
             <span className="text-sm font-bold uppercase tracking-[0.08em] group-hover:opacity-70 transition-opacity">
               CUSAT SB
             </span>
@@ -74,9 +83,9 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/join" className="btn-primary py-2.5 px-5 text-[10px]">
+            <PremiumButton href="/join" size="sm">
               Join
-            </Link>
+            </PremiumButton>
           </div>
 
           <button
@@ -116,9 +125,14 @@ export default function Navbar() {
               </li>
             ))}
             <li className="pt-4">
-              <Link href="/join" onClick={() => setOpen(false)} className="btn-primary w-full">
+              <PremiumButton
+                href="/join"
+                size="sm"
+                fullWidth
+                onClick={() => setOpen(false)}
+              >
                 Join IEEE CUSAT
-              </Link>
+              </PremiumButton>
             </li>
           </ul>
         </div>

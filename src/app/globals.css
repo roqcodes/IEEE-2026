@@ -89,6 +89,10 @@
     @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-ieee-blue;
   }
 
+  .year-badge {
+    @apply inline-flex items-center px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] bg-ieee-blue text-white;
+  }
+
   .text-card-title {
     @apply font-serif text-xl sm:text-2xl font-semibold text-ieee-navy leading-snug tracking-[-0.01em];
   }
