@@ -48,7 +48,7 @@ export default function HomeHero() {
 
   return (
     <section
-      className="relative overflow-hidden bg-ieee-sky-muted min-h-svh flex flex-col"
+      className="relative overflow-hidden bg-ieee-sky-muted min-h-svh lg:h-svh lg:max-h-svh flex flex-col"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-label="Welcome"
@@ -74,17 +74,17 @@ export default function HomeHero() {
         <HeroNetworkMap className="h-full" />
       </div>
 
-      <div className="relative z-10 flex-1 flex items-center container-editorial pt-16 lg:pt-20 pb-12 lg:pb-16">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          <div className="lg:col-span-7 xl:col-span-7">
-            <FadeIn>
-              <div className="flex items-center gap-3 mb-6">
+      <div className="relative z-10 flex-1 flex min-h-0 items-start lg:items-center container-editorial pt-28 sm:pt-32 lg:pt-0 pb-8 sm:pb-10 lg:pb-12">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center w-full">
+          <div className="lg:col-span-7 xl:col-span-7 flex flex-col max-lg:gap-0 max-lg:justify-between max-lg:min-h-[calc(100svh-7rem)] sm:max-lg:min-h-[calc(100svh-8rem)]">
+            <FadeIn className="max-lg:order-1">
+              <div className="flex items-center gap-3 mb-5 sm:mb-6 mt-2 sm:mt-4 lg:mt-0">
                 <span className="h-px w-8 bg-ieee-blue" aria-hidden="true" />
                 <p className="section-eyebrow mb-0">IEEE CUSAT Student Branch</p>
               </div>
             </FadeIn>
 
-            <div className="min-h-[200px] sm:min-h-[180px]">
+            <div className="min-h-[160px] sm:min-h-[180px] max-lg:order-2">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeSlide}
@@ -101,8 +101,12 @@ export default function HomeHero() {
               </AnimatePresence>
             </div>
 
-            <FadeIn delay={0.12}>
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-9">
+            <div className="max-lg:order-3 lg:hidden -mx-4 sm:-mx-6 mt-4 mb-2">
+              <HeroNetworkMap variant="mobile" />
+            </div>
+
+            <FadeIn delay={0.12} className="max-lg:order-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 lg:mt-9">
                 <PremiumButton href={current.cta.href} variant="primary">
                   {current.cta.label}
                 </PremiumButton>
@@ -112,7 +116,7 @@ export default function HomeHero() {
               </div>
             </FadeIn>
 
-            <div className="flex items-center gap-5 mt-12 pt-8 border-t border-ieee-border/80">
+            <div className="flex items-center gap-5 mt-10 lg:mt-12 pt-8 border-t border-ieee-border/80 max-lg:order-5">
               <div className="flex gap-2" role="tablist" aria-label="Hero slides">
                 {slides.map((_, idx) => (
                   <button
@@ -161,10 +165,6 @@ export default function HomeHero() {
                 </button>
               </div>
             </div>
-          </div>
-
-          <div className="lg:hidden mt-2 -mx-4 sm:-mx-6">
-            <HeroNetworkMap />
           </div>
         </div>
       </div>

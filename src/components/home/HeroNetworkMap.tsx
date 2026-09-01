@@ -15,32 +15,44 @@ function arcPath(from: { x: number; y: number }, to: { x: number; y: number }) {
   return `M ${from.x} ${from.y} Q ${midX} ${midY} ${to.x} ${to.y}`;
 }
 
-const MAP_MASK = [
+const MAP_MASK_DESKTOP = [
   "linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
   "linear-gradient(to left, black 18%, rgba(0,0,0,0.85) 42%, rgba(0,0,0,0.2) 68%, transparent 100%)",
   "linear-gradient(to right, black 42%, rgba(0,0,0,0.85) 68%, rgba(0,0,0,0.2) 88%, transparent 100%)",
 ].join(", ");
 
-export default function HeroNetworkMap({ className = "" }: { className?: string }) {
+const MAP_MASK_MOBILE =
+  "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)";
+
+export default function HeroNetworkMap({
+  className = "",
+  variant = "desktop",
+}: {
+  className?: string;
+  variant?: "desktop" | "mobile";
+}) {
   const reduce = useReducedMotion();
   const home = WORLD_MAP_HUBS.find((h) => h.id === "cusat")!;
   const remoteHubs = WORLD_MAP_HUBS.filter((h) => h.id !== "cusat");
+  const isMobile = variant === "mobile";
 
   return (
     <div
-      className={`relative h-full w-full min-h-[240px] sm:min-h-[280px] lg:min-h-0 pointer-events-none select-none ${className}`}
+      className={`relative w-full pointer-events-none select-none overflow-hidden ${
+        isMobile ? "h-[200px]" : "h-full min-h-[240px] sm:min-h-[280px] lg:min-h-0"
+      } ${className}`}
       aria-hidden="true"
       style={{
-        maskImage: MAP_MASK,
-        WebkitMaskImage: MAP_MASK,
-        maskComposite: "intersect, intersect",
-        WebkitMaskComposite: "source-in, source-in",
+        maskImage: isMobile ? MAP_MASK_MOBILE : MAP_MASK_DESKTOP,
+        WebkitMaskImage: isMobile ? MAP_MASK_MOBILE : MAP_MASK_DESKTOP,
+        maskComposite: isMobile ? undefined : "intersect, intersect",
+        WebkitMaskComposite: isMobile ? undefined : "source-in, source-in",
       }}
     >
       <svg
         viewBox={`0 0 ${WORLD_MAP_WIDTH} ${WORLD_MAP_HEIGHT}`}
         className="absolute inset-0 h-full w-full"
-        preserveAspectRatio="xMaxYMid slice"
+        preserveAspectRatio={isMobile ? "xMidYMid meet" : "xMaxYMid slice"}
       >
         <defs>
           <radialGradient id="heroMapGlow" cx="92%" cy="48%" r="58%">
