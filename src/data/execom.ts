@@ -13,6 +13,7 @@ export interface ExecomMember {
   email?: string;
   branch: string;  // Department / Academic branch
   year: string;    // e.g. "3rd Year B.Tech"
+  quote?: string;
 }
 
 export const execomMembers: ExecomMember[] = [
@@ -24,6 +25,8 @@ export const execomMembers: ExecomMember[] = [
     linkedin: "https://linkedin.com",
     branch: "Electronics & Communication Engineering",
     year: "4th Year B.Tech",
+    quote:
+      "IEEE CUSAT is where engineering ambition meets real community — we build events, chapters, and culture together.",
   },
   {
     id: "vice-chair",
@@ -33,6 +36,8 @@ export const execomMembers: ExecomMember[] = [
     linkedin: "https://linkedin.com",
     branch: "Computer Science Engineering",
     year: "4th Year B.Tech",
+    quote:
+      "Every chapter here is a doorway — pick your technical interest and you will find people who want to build with you.",
   },
   {
     id: "secretary",
@@ -42,6 +47,8 @@ export const execomMembers: ExecomMember[] = [
     linkedin: "https://linkedin.com",
     branch: "Electrical Engineering",
     year: "3rd Year B.Tech",
+    quote:
+      "Documentation and coordination are how student leadership scales — we make room for every volunteer to contribute.",
   },
   {
     id: "treasurer",

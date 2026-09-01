@@ -16,6 +16,7 @@ export interface Event {
   image: string;          // path relative to /public or absolute URL
   category: "workshop" | "seminar" | "competition" | "social" | "other";
   status: "upcoming" | "past" | "live";
+  chapter?: string;
   registrationLink?: string;
 }
 
@@ -32,6 +33,7 @@ export const events: Event[] = [
     image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop",
     category: "competition",
     status: "upcoming",
+    chapter: "IEEE CS",
     registrationLink: "https://forms.google.com",
   },
   {
@@ -46,6 +48,7 @@ export const events: Event[] = [
     image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
     category: "workshop",
     status: "upcoming",
+    chapter: "IEEE RAS",
     registrationLink: "https://forms.google.com",
   },
   {

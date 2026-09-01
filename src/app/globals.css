@@ -1,32 +1,178 @@
 @import "tailwindcss";
 
+/*
+ * Tailwind v4 @theme tokens become utilities WITHOUT the --color- prefix.
+ * Use: bg-ieee-blue, text-ieee-navy, border-ieee-border
+ * NOT: bg-[--color-ieee-blue] (invalid — treats name as literal, no color)
+ */
+
 @theme {
-  --color-navy: #0A2540;
-  --color-navy-light: #0F3D68;
+  --color-ieee-blue: #00629B;
+  --color-ieee-blue-dark: #004D7A;
+  --color-ieee-blue-light: #0085CA;
+  --color-ieee-navy: #003B66;
+  --color-ieee-sky: #EAF4FA;
+  --color-ieee-sky-muted: #F5FAFD;
+  --color-ieee-border: #C5DFF0;
+
+  --color-ieee: #00629B;
+  --color-ink: #003B66;
+  --color-graphite: #5A6B7D;
+  --color-stone: #8A9BB0;
+  --color-line: #C5DFF0;
+  --color-paper: #F5FAFD;
+
+  --color-navy: #003B66;
+  --color-navy-light: #00629B;
   --color-gold: #F2A900;
   --color-surface-cream: #F4E9D6;
-  --color-surface-blue: #E8F2FB;
-  --color-charcoal: #1A1A1A;
-  --color-muted: #6B6B6B;
-  --color-border: #E5E7EB;
+  --color-surface-blue: #EAF4FA;
+  --color-charcoal: #1A2332;
+  --color-muted: #5A6B7D;
+  --color-border: #C5DFF0;
 
-  --font-sans: 'Inter', var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --font-serif: 'Source Serif 4', var(--font-source-serif), Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-sans: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, 'Times New Roman', serif;
 }
 
 @layer base {
+  html {
+    scroll-padding-top: 4rem;
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-top: 5rem;
+    }
+  }
+
   body {
-    @apply bg-white text-[--color-charcoal];
+    @apply bg-white text-charcoal antialiased;
+  }
+
+  .home-page,
+  .site-page {
+    @apply text-charcoal bg-gradient-to-b from-ieee-sky-muted via-white to-ieee-sky-muted;
   }
 }
 
 @layer utilities {
   .tick-mark {
-    @apply w-[3px] h-[40px] bg-[--color-gold] inline-block;
+    @apply w-[3px] h-[40px] bg-ieee-blue inline-block;
   }
 
   .tick-mark-diagonal {
-    @apply w-[2px] h-[40px] bg-[--color-gold] inline-block transform rotate-12;
+    @apply w-[2px] h-[40px] bg-ieee-blue inline-block transform rotate-12;
+  }
+
+  .section-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-ieee-blue;
+  }
+
+  .section-title {
+    @apply text-3xl sm:text-4xl lg:text-[2.75rem] font-serif font-semibold text-ieee-navy leading-[1.12] tracking-[-0.02em];
+  }
+
+  .section-subtitle {
+    @apply text-muted leading-relaxed text-base sm:text-lg;
+  }
+
+  .text-lead {
+    @apply text-base sm:text-lg text-graphite leading-relaxed;
+  }
+
+  .text-body {
+    @apply text-sm sm:text-base text-muted leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-ieee-blue;
+  }
+
+  .text-card-title {
+    @apply font-serif text-xl sm:text-2xl font-semibold text-ieee-navy leading-snug tracking-[-0.01em];
+  }
+
+  .section-link {
+    @apply inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ieee-blue hover:text-ieee-blue-dark transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ieee-blue;
+  }
+
+  .section-header-link {
+    @apply relative inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-ieee-blue transition-[color,gap,transform] duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ieee-blue;
+  }
+
+  .section-header-link::before {
+    content: "";
+    @apply absolute -inset-x-3 -inset-y-2 rounded-full bg-ieee-blue/0 transition-colors duration-300 ease-out;
+  }
+
+  .section-header-link:hover {
+    @apply gap-3.5 text-ieee-blue-dark;
+  }
+
+  .section-header-link:hover::before {
+    @apply bg-ieee-blue/5;
+  }
+
+  .section-header-link-label {
+    @apply relative;
+  }
+
+  .section-header-link-label::after {
+    content: "";
+    @apply absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-current transition-transform duration-300 ease-out;
+  }
+
+  .section-header-link:hover .section-header-link-label::after {
+    @apply scale-x-100;
+  }
+
+  .section-header-link-icon {
+    @apply relative w-4 h-4 transition-transform duration-300 ease-out;
+  }
+
+  .section-header-link:hover .section-header-link-icon {
+    @apply translate-x-1.5;
+  }
+
+  .container-editorial {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.2em] text-ieee-blue;
+  }
+
+  .rule-h {
+    @apply h-px w-full bg-line;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] bg-ieee-blue text-white border border-ieee-blue hover:bg-ieee-blue-dark hover:border-ieee-blue-dark transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ieee-blue;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] border border-ieee-border text-ieee-navy hover:border-ieee-blue hover:bg-ieee-sky transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ieee-blue;
+  }
+
+  .home-page > section,
+  .site-page > section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 520px;
+  }
+
+  .form-input {
+    @apply w-full px-4 py-3 border border-ieee-border bg-white text-sm text-charcoal placeholder-stone focus:outline-none focus:border-ieee-blue focus:ring-1 focus:ring-ieee-blue/20 transition-colors duration-200;
+  }
+
+  .form-label {
+    @apply block text-[11px] font-semibold uppercase tracking-[0.08em] text-graphite mb-2;
+  }
+
+  .home-page [data-decorative],
+  .site-page [data-decorative] {
+    contain: paint;
+    pointer-events: none;
   }
 }
 
@@ -47,4 +193,62 @@
 .animate-line-right {
   animation: slideRightLine 2.5s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
   opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bar-down,
+  .animate-line-right,
+  .hero-network-line,
+  .hero-network-pulse {
+    animation: none;
+    opacity: 1;
+  }
+
+  .section-header-link,
+  .section-header-link-icon,
+  .section-header-link-label::after,
+  .section-header-link::before {
+    transition: none;
+  }
+
+  .section-header-link:hover .section-header-link-icon {
+    transform: none;
+  }
+
+  .section-header-link:hover .section-header-link-label::after {
+    transform: none;
+    scale: 1;
+  }
+}
+
+@keyframes heroNetworkDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes heroNetworkPulse {
+  0%,
+  100% {
+    opacity: 0.06;
+    r: 12;
+  }
+  50% {
+    opacity: 0.14;
+    r: 16;
+  }
+}
+
+.hero-network-line {
+  animation: heroNetworkDash 4s linear infinite;
+}
+
+.hero-network-pulse {
+  animation: heroNetworkPulse 3s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.hero-network-pulse-delay {
+  animation-delay: 1.2s;
 }

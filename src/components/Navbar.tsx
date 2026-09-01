@@ -3,111 +3,123 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+
+const links = [
+  { href: "/about", label: "About" },
+  { href: "/events", label: "Events" },
+  { href: "/societies", label: "Chapters" },
+  { href: "/achievements", label: "Awards" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/execom", label: "Team" },
+  { href: "/contact", label: "Contact" },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
+  const [open, setOpen] = useState(false);
 
   const isHome = pathname === "/";
-  // On home, it's transparent (unless scrolled). On other pages, always solid white.
-  const isSolid = !isHome || scrolled;
+  const merged = isHome && !scrolled;
+
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 24);
+        ticking = false;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-300">
-      {/* ── 2. Main Header ── */}
+    <header className="fixed top-0 left-0 right-0 z-50">
       <nav
-        className={`w-full transition-colors duration-300 ${
-          isSolid ? "bg-white border-b border-[--color-border] shadow-sm" : "bg-transparent"
-        }`}
+        className={cn(
+          "transition-[box-shadow,border-color,background-color,backdrop-filter] duration-300",
+          merged
+            ? "bg-transparent border-b border-transparent text-ink"
+            : "bg-white/92 backdrop-blur-md border-b border-ieee-border text-ink shadow-[0_1px_12px_rgba(0,98,155,0.06)]"
+        )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
-          {/* Logo Lockup */}
-          <Link href="/" className="flex items-center gap-4 group">
-            {/* Geometric diamond logo */}
-            <div className="w-10 h-10 bg-[--color-navy-light] flex items-center justify-center transform rotate-45 group-hover:scale-105 transition-transform">
-              <span className="text-white text-xs font-bold transform -rotate-45 block leading-none">IEEE</span>
-            </div>
-            <div className={`flex flex-col ${isSolid ? "text-[--color-navy]" : "text-white"}`}>
-              <span className="font-bold text-xl tracking-tight leading-none mb-1">
-                IEEE CUSAT
-              </span>
-              <span className="italic text-xs opacity-90 leading-none font-serif">
-                Advancing Technology for Humanity
-              </span>
-            </div>
+        <div className="container-editorial flex items-center justify-between h-16 lg:h-20">
+          <Link href="/" className="flex flex-col leading-none group">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.22em] opacity-60">
+              IEEE
+            </span>
+            <span className="text-sm font-bold uppercase tracking-[0.08em] group-hover:opacity-70 transition-opacity">
+              CUSAT SB
+            </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-8">
-            <Link href="/" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Home</Link>
-            <Link href="/about" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>About</Link>
-            <Link href="/events" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Events</Link>
-            <Link href="/societies" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Societies</Link>
-            <Link href="/gallery" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Gallery</Link>
-            <Link href="/contact" className={`font-bold text-sm tracking-widest uppercase hover:text-[--color-gold] transition-colors ${isSolid ? "text-[--color-navy]" : "text-white"}`}>Contact</Link>
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "text-[10px] font-semibold uppercase tracking-[0.18em] transition-opacity hover:opacity-60",
+                  pathname === link.href && "opacity-100 underline underline-offset-8 decoration-1",
+                  pathname !== link.href && "opacity-80"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link href="/join" className="btn-primary py-2.5 px-5 text-[10px]">
+              Join
+            </Link>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Search Icon */}
-            <button
-              className={`w-10 h-10 border flex items-center justify-center transition-colors ${
-                isSolid
-                  ? "border-[--color-border] text-[--color-navy] hover:bg-gray-50"
-                  : "border-white/30 text-white hover:bg-white/10"
-              }`}
-              aria-label="Search"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-            </button>
-            {/* Hamburger Icon */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className={`w-10 h-10 border flex items-center justify-center transition-colors lg:hidden ${
-                isSolid
-                  ? "border-[--color-border] text-[--color-navy] hover:bg-gray-50"
-                  : "border-white/30 text-white hover:bg-white/10"
-              }`}
-              aria-label="Menu"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                {menuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                )}
-              </svg>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            className="lg:hidden w-10 h-10 flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+          >
+            <span className="sr-only">Menu</span>
+            <div className="flex flex-col gap-1.5 w-5">
+              <span className={cn("h-px bg-current transition-transform", open && "translate-y-[7px] rotate-45")} />
+              <span className={cn("h-px bg-current transition-opacity", open && "opacity-0")} />
+              <span className={cn("h-px bg-current transition-transform", open && "-translate-y-[7px] -rotate-45")} />
+            </div>
+          </button>
         </div>
       </nav>
 
-      {/* Mobile Menu Dropdown (Basic placeholder) */}
-      {menuOpen && (
-        <div className="bg-white border-b border-[--color-border] absolute top-full left-0 w-full shadow-lg lg:hidden">
-          <ul className="flex flex-col p-4">
-            <li><Link href="/" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Home</Link></li>
-            <li><Link href="/about" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">About</Link></li>
-            <li><Link href="/events" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Events</Link></li>
-            <li><Link href="/societies" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Societies</Link></li>
-            <li><Link href="/gallery" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold border-b">Gallery</Link></li>
-            <li><Link href="/contact" onClick={() => setMenuOpen(false)} className="block py-3 text-[--color-navy] font-semibold">Contact</Link></li>
+      {open && (
+        <div
+          className={cn(
+            "lg:hidden border-b border-ieee-border",
+            merged ? "bg-ieee-sky-muted/95 backdrop-blur-md" : "bg-white/92 backdrop-blur-md"
+          )}
+        >
+          <ul className="container-editorial py-4 flex flex-col">
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-sm font-semibold uppercase tracking-[0.12em] text-ink border-b border-line last:border-0"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            <li className="pt-4">
+              <Link href="/join" onClick={() => setOpen(false)} className="btn-primary w-full">
+                Join IEEE CUSAT
+              </Link>
+            </li>
           </ul>
         </div>
       )}

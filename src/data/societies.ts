@@ -12,6 +12,8 @@ export interface Society {
   description: string;
   link?: string;          // external IEEE page or internal page
   tags: string[];
+  recentActivity?: string;
+  eventCount?: number;
 }
 
 export const societies: Society[] = [
@@ -25,6 +27,8 @@ export const societies: Society[] = [
       "Fostering computer science innovation through talks, hackathons, and project mentorship. One of the largest IEEE societies globally.",
     link: "https://www.computer.org",
     tags: ["Computing", "Software", "AI/ML"],
+    recentActivity: "TechSprint 2025 hackathon track lead",
+    eventCount: 8,
   },
   {
     id: "ras",
@@ -36,6 +40,8 @@ export const societies: Society[] = [
       "Advancing robotics and intelligent systems — from wheeled robots to autonomous drones and beyond.",
     link: "https://www.ieee-ras.org",
     tags: ["Robotics", "Automation", "Drones"],
+    recentActivity: "IoT & Embedded Systems Workshop",
+    eventCount: 6,
   },
   {
     id: "wie",
@@ -47,6 +53,8 @@ export const societies: Society[] = [
       "Promoting gender diversity in engineering through mentorship programs, workshops, and networking events.",
     link: "https://wie.ieee.org",
     tags: ["Diversity", "Mentorship", "Leadership"],
+    recentActivity: "Mentorship cohort 2025–26",
+    eventCount: 5,
   },
   {
     id: "pes",
@@ -58,6 +66,8 @@ export const societies: Society[] = [
       "Exploring power systems, renewable energy, and smart grid technologies through seminars and project competitions.",
     link: "https://ieee-pes.org",
     tags: ["Power Systems", "Renewables", "Smart Grid"],
+    recentActivity: "Smart grid seminar series",
+    eventCount: 4,
   },
   {
     id: "comm",
@@ -69,6 +79,8 @@ export const societies: Society[] = [
       "Covering advances in telecommunications, 5G, networking, and signal processing.",
     link: "https://www.comsoc.org",
     tags: ["Telecom", "5G", "Networking"],
+    recentActivity: "5G networking talk",
+    eventCount: 3,
   },
   {
     id: "sight",
@@ -80,5 +92,7 @@ export const societies: Society[] = [
       "Applying engineering skills to solve real-world humanitarian and community challenges.",
     link: "https://sight.ieee.org",
     tags: ["Social Impact", "Community", "Humanitarian"],
+    recentActivity: "Community water quality deployment",
+    eventCount: 3,
   },
 ];

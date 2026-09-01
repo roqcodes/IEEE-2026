@@ -1,95 +1,91 @@
-import { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
+import PageSection from "@/components/home/PageSection";
+import SectionHeader from "@/components/home/SectionHeader";
+import PremiumCard from "@/components/home/PremiumCard";
+import PageCta from "@/components/home/PageCta";
 
 export const metadata: Metadata = {
   title: "Join Now",
   description: "Join the IEEE CUSAT Student Branch and become part of a global network of professionals.",
 };
 
+const benefits = [
+  "Access to IEEE Xplore Digital Library",
+  "Networking with industry professionals and peers",
+  "Opportunities to attend IEEE conferences and events",
+  "Exclusive scholarships, grants, and fellowships",
+  "Professional development and career resources",
+];
+
 export default function JoinPage() {
   return (
-    <div className="bg-white">
+    <div className="site-page">
       <PageHeader
         breadcrumb="Membership"
         title="Join IEEE CUSAT Student Branch"
         subtitle="Become a part of the world's largest technical professional organization for the advancement of technology."
-        accentColor="#00629B"
       />
 
-      {/* Main Content */}
-      <section className="relative border-t border-gray-200 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
-        {/* Why Join */}
-        <div>
-          <h2 className="text-2xl font-serif font-bold text-[--color-navy] mb-6">
-            Why Join IEEE?
-          </h2>
-          <div className="space-y-6 text-[--color-charcoal]">
-            <p>
-              IEEE membership offers access to technical innovation, cutting-edge information, networking opportunities, and exclusive member benefits.
-            </p>
-            <ul className="list-disc pl-5 space-y-3">
-              <li>Access to IEEE Xplore Digital Library</li>
-              <li>Networking with industry professionals and peers</li>
-              <li>Opportunities to attend IEEE conferences and events</li>
-              <li>Exclusive scholarships, grants, and fellowships</li>
-              <li>Professional development and career resources</li>
+      <PageSection aria-label="Membership registration" sideGlow="right">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+          <div>
+            <SectionHeader
+              eyebrow="Membership"
+              title="Why Join IEEE?"
+              subtitle="IEEE membership offers access to technical innovation, cutting-edge information, networking opportunities, and exclusive member benefits."
+            />
+            <ul className="mt-8 space-y-4">
+              {benefits.map((benefit) => (
+                <li key={benefit} className="flex gap-3 text-body">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-ieee-blue" aria-hidden="true" />
+                  {benefit}
+                </li>
+              ))}
             </ul>
           </div>
-        </div>
 
-        {/* Form Placeholder */}
-        <div className="bg-[#FAFAFA] border border-[--color-border] p-8 shadow-md">
-          <h2 className="text-2xl font-serif font-bold text-[--color-navy] mb-6">
-            Membership Registration
-          </h2>
-          <form className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-bold text-[--color-charcoal] mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="w-full border border-[--color-border] bg-white px-4 py-3 text-[--color-charcoal] focus:outline-none focus:border-[--color-navy] transition-colors"
-                placeholder="John Doe"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-bold text-[--color-charcoal] mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="w-full border border-[--color-border] bg-white px-4 py-3 text-[--color-charcoal] focus:outline-none focus:border-[--color-navy] transition-colors"
-                placeholder="john@example.com"
-              />
-            </div>
-            <div>
-              <label htmlFor="student-id" className="block text-sm font-bold text-[--color-charcoal] mb-2">
-                Student ID
-              </label>
-              <input
-                type="text"
-                id="student-id"
-                className="w-full border border-[--color-border] bg-white px-4 py-3 text-[--color-charcoal] focus:outline-none focus:border-[--color-navy] transition-colors"
-                placeholder="12345678"
-              />
-            </div>
-            <button
-              type="button"
-              className="w-full bg-[--color-navy] hover:bg-[--color-gold] text-white hover:text-[--color-navy] font-bold py-4 px-6 transition-colors"
-            >
-              Submit Application
-            </button>
-            <p className="text-xs text-[--color-muted] mt-4 text-center">
-              By submitting this form, you will be redirected to the official IEEE portal to complete your payment.
-            </p>
-          </form>
+          <PremiumCard className="p-8 lg:p-10">
+            <h2 className="text-card-title mb-6">Membership Registration</h2>
+            <form className="space-y-5">
+              <div>
+                <label htmlFor="name" className="form-label">
+                  Full Name
+                </label>
+                <input type="text" id="name" className="form-input" placeholder="John Doe" />
+              </div>
+              <div>
+                <label htmlFor="email" className="form-label">
+                  Email Address
+                </label>
+                <input type="email" id="email" className="form-input" placeholder="john@example.com" />
+              </div>
+              <div>
+                <label htmlFor="student-id" className="form-label">
+                  Student ID
+                </label>
+                <input type="text" id="student-id" className="form-input" placeholder="12345678" />
+              </div>
+              <button type="button" className="btn-primary w-full">
+                Submit Application
+              </button>
+              <p className="text-[11px] text-stone text-center">
+                By submitting this form, you will be redirected to the official IEEE portal to complete your payment.
+              </p>
+            </form>
+          </PremiumCard>
         </div>
-      </section>
+      </PageSection>
+
+      <PageCta
+        eyebrow="Questions"
+        title="Need Help With Membership?"
+        description="Our team can guide you through IEEE registration, student branch benefits, and chapter involvement."
+        primaryHref="/contact"
+        primaryLabel="Contact Us"
+        secondaryHref="/about"
+        secondaryLabel="Learn About Us"
+      />
     </div>
   );
 }

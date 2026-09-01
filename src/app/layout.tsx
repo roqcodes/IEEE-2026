@@ -1,14 +1,27 @@
 /**
  * Root Layout — wraps every page with the Navbar and Footer.
- * Metadata here acts as the site-wide fallback; each page can override it.
- *
- * Font: Inter from next/font/google (variable font, subset latin)
- * Tailwind v4: body keeps min-h-screen, flex, flex-col so footer sticks bottom.
+ * Fonts: Cormorant Garamond (display) + DM Sans (body) via next/font/google
  */
 import type { Metadata } from "next";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SmoothScroll from "@/components/SmoothScroll";
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -32,19 +45,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="h-full scroll-smooth"
-      data-scroll-behavior="smooth"
+      className={`h-full ${cormorant.variable} ${dmSans.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="min-h-screen flex flex-col bg-white text-[--color-charcoal] font-sans">
+      <body className="min-h-screen flex flex-col bg-white text-charcoal font-sans">
+        <SmoothScroll />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

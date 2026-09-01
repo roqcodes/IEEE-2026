@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useCallback, FormEvent } from "react";
 import PageHeader from "@/components/PageHeader";
+import PageSection from "@/components/home/PageSection";
+import SectionHeader from "@/components/home/SectionHeader";
+import PremiumCard from "@/components/home/PremiumCard";
 
 interface FormData {
   name: string;
@@ -11,15 +14,18 @@ interface FormData {
 }
 
 const socialLinks = [
-  { label: "LinkedIn", href: "https://linkedin.com", color: "#0a66c2" },
-  { label: "Instagram", href: "https://instagram.com", color: "#e1306c" },
-  { label: "Twitter/X", href: "https://x.com", color: "#000" },
-  { label: "YouTube", href: "https://youtube.com", color: "#ff0000" },
+  { label: "LinkedIn", href: "https://linkedin.com" },
+  { label: "Instagram", href: "https://instagram.com" },
+  { label: "Twitter/X", href: "https://x.com" },
+  { label: "YouTube", href: "https://youtube.com" },
 ];
 
 export default function ContactPage() {
   const [form, setForm] = useState<FormData>({
-    name: "", email: "", subject: "", message: "",
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
@@ -32,240 +38,240 @@ export default function ContactPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("sending");
-    /* TODO: replace with fetch("/api/contact", { method:"POST", body: JSON.stringify(form) }) */
-    await new Promise((r) => setTimeout(r, 800)); // simulate network
+    await new Promise((r) => setTimeout(r, 800));
     console.log("Contact form submission:", form);
     setStatus("success");
     setForm({ name: "", email: "", subject: "", message: "" });
   }
 
   return (
-    <>
+    <div className="site-page">
       <PageHeader
         breadcrumb="Reach Out"
         title="Contact Us"
-        subtitle="Have a question, suggestion, or want to collaborate? We'd love to hear from you."
-        accentColor="#00629B"
+        subtitle="Connect with IEEE CUSAT Student Branch for membership, events, chapters, collaborations, or any questions about getting involved."
       />
 
-      <section className="relative border-t border-gray-200 py-24" aria-label="Contact section">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-12 w-[1px] h-24 bg-[#00629B]/40 hidden md:block z-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-5 gap-16">
+      <PageSection aria-label="Contact section" sideGlow="left">
+        <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
+          <div className="lg:col-span-3">
+            <SectionHeader
+              eyebrow="Message"
+              title="Send Us a Message"
+              subtitle="We'll get back to you as soon as possible."
+            />
 
-            {/* ── Contact Form (col 3) ── */}
-            <div className="lg:col-span-3">
-              <h2 className="text-3xl font-bold font-serif text-[--color-navy] mb-8">
-                Send Us a Message
-              </h2>
-
-              {status === "success" ? (
-                <div className="border-l-4 border-[--color-gold] bg-white p-8 shadow-sm" role="alert">
-                  <div className="text-4xl mb-4 text-[--color-navy]">✅</div>
-                  <h3 className="text-xl font-bold font-serif text-[--color-navy] mb-2">Message Sent!</h3>
-                  <p className="text-[--color-charcoal] text-sm mb-6">We&apos;ll get back to you within 24 hours.</p>
-                  <button
-                    className="text-xs font-bold uppercase tracking-widest text-[--color-navy] hover:text-[--color-gold] transition-colors"
-                    onClick={() => setStatus("idle")}
-                  >
-                    SEND ANOTHER MESSAGE
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-                  {/* Name + Email */}
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="name" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
-                        Full Name <span aria-hidden="true" className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        value={form.name}
-                        onChange={handleChange}
-                        placeholder="Your name"
-                        className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] placeholder-[--color-muted] focus:outline-none focus:border-[--color-navy] transition"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
-                        Email Address <span aria-hidden="true" className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        value={form.email}
-                        onChange={handleChange}
-                        placeholder="you@example.com"
-                        className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] placeholder-[--color-muted] focus:outline-none focus:border-[--color-navy] transition"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Subject */}
+            {status === "success" ? (
+              <div role="alert" className="mt-8">
+                <PremiumCard className="p-8">
+                <h3 className="text-card-title mb-2">Message Sent</h3>
+                <p className="text-body mb-6">We&apos;ll get back to you within 24 hours.</p>
+                <button
+                  type="button"
+                  className="section-link"
+                  onClick={() => setStatus("idle")}
+                >
+                  Send another message
+                </button>
+                </PremiumCard>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
+                <div className="grid sm:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="subject" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
-                      Subject <span aria-hidden="true" className="text-red-500">*</span>
+                    <label htmlFor="name" className="form-label">
+                      Full Name <span className="text-red-500">*</span>
                     </label>
-                    <select
-                      id="subject"
-                      name="subject"
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
                       required
-                      value={form.subject}
+                      value={form.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] focus:outline-none focus:border-[--color-navy] transition appearance-none rounded-none"
-                    >
-                      <option value="">Select a subject…</option>
-                      <option value="membership">IEEE Membership</option>
-                      <option value="events">Events & Workshops</option>
-                      <option value="sponsorship">Sponsorship & Collaboration</option>
-                      <option value="societies">Chapters & Societies</option>
-                      <option value="media">Media / Press</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Message */}
-                  <div>
-                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-widest text-[--color-charcoal] mb-2">
-                      Message <span aria-hidden="true" className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={6}
-                      value={form.message}
-                      onChange={handleChange}
-                      placeholder="Tell us how we can help…"
-                      className="w-full px-4 py-3 border border-[--color-border] bg-white text-sm text-[--color-charcoal] placeholder-[--color-muted] resize-y focus:outline-none focus:border-[--color-navy] transition"
+                      placeholder="Your name"
+                      className="form-input"
                     />
                   </div>
+                  <div>
+                    <label htmlFor="email" className="form-label">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="you@example.com"
+                      className="form-input"
+                    />
+                  </div>
+                </div>
 
-                  <button
-                    type="submit"
-                    disabled={status === "sending"}
-                    className="w-full sm:w-auto px-10 py-4 bg-[--color-navy] border-2 border-[--color-navy] text-white font-bold text-xs tracking-widest uppercase transition-colors hover:bg-[--color-gold] hover:border-[--color-gold] disabled:opacity-70 disabled:hover:bg-[--color-navy] disabled:hover:border-[--color-navy]"
+                <div>
+                  <label htmlFor="subject" className="form-label">
+                    Subject <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="subject"
+                    name="subject"
+                    required
+                    value={form.subject}
+                    onChange={handleChange}
+                    className="form-input"
                   >
-                    {status === "sending" ? "SENDING…" : "SEND MESSAGE"}
-                  </button>
-                </form>
-              )}
-            </div>
+                    <option value="">Select a subject…</option>
+                    <option value="membership">IEEE Membership</option>
+                    <option value="events">Events & Workshops</option>
+                    <option value="sponsorship">Sponsorship & Collaboration</option>
+                    <option value="societies">Chapters & Societies</option>
+                    <option value="media">Media / Press</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
 
-            {/* ── Contact Info (col 2) ── */}
-            <aside className="lg:col-span-2 space-y-10">
-              <div>
-                <h2 className="text-3xl font-bold font-serif text-[--color-navy] mb-8">
-                  Get in Touch
-                </h2>
-                <div className="space-y-6">
-                  <ContactItem
-                    icon={
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                    }
-                    label="Email"
-                    value="ieee@cusat.ac.in"
-                    href="mailto:ieee@cusat.ac.in"
-                  />
-                  <ContactItem
-                    icon={
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    }
-                    label="Address"
-                    value="School of Engineering, CUSAT, Kochi — 682 022, Kerala, India"
+                <div>
+                  <label htmlFor="message" className="form-label">
+                    Message <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    required
+                    rows={6}
+                    value={form.message}
+                    onChange={handleChange}
+                    placeholder="Tell us how we can help…"
+                    className="form-input resize-y"
                   />
                 </div>
-              </div>
 
-              {/* Office hours */}
-              <div className="border border-[--color-border] bg-white p-8 shadow-sm">
-                <h3 className="font-bold font-serif text-[--color-navy] text-xl mb-6">Office Hours</h3>
-                <dl className="space-y-3 text-sm">
-                  {[
-                    { day: "Monday – Friday", time: "10:00 AM – 5:00 PM" },
-                    { day: "Saturday", time: "10:00 AM – 1:00 PM" },
-                    { day: "Sunday", time: "Closed" },
-                  ].map((h) => (
-                    <div key={h.day} className="flex justify-between gap-4">
-                      <dt className="text-[--color-charcoal]">{h.day}</dt>
-                      <dd className="font-bold text-[--color-navy]">{h.time}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-
-              {/* Social links */}
-              <div>
-                <h3 className="font-bold font-serif text-[--color-navy] text-xl mb-6">Follow Us</h3>
-                <div className="flex flex-wrap gap-4">
-                  {socialLinks.map((s) => (
-                    <a
-                      key={s.label}
-                      href={s.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`IEEE CUSAT on ${s.label}`}
-                      className="px-5 py-2 border border-[--color-border] bg-white text-xs font-bold tracking-widest uppercase text-[--color-navy] hover:border-[--color-navy] hover:bg-[--color-gold] hover:border-[--color-gold] hover:text-[--color-navy] hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
-                    >
-                      {s.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </aside>
+                <button
+                  type="submit"
+                  disabled={status === "sending"}
+                  className="btn-primary disabled:opacity-70"
+                >
+                  {status === "sending" ? "Sending…" : "Send Message"}
+                </button>
+              </form>
+            )}
           </div>
+
+          <aside className="lg:col-span-2 space-y-5">
+            <SectionHeader eyebrow="Contact" title="Get in Touch" />
+
+            <PremiumCard className="p-6">
+              <ContactItem
+                label="Email"
+                value="ieee@cusat.ac.in"
+                href="mailto:ieee@cusat.ac.in"
+              />
+              <ContactItem
+                label="Address"
+                value="School of Engineering, CUSAT, Kochi — 682 022, Kerala, India"
+                className="mt-6"
+              />
+            </PremiumCard>
+
+            <PremiumCard className="p-6">
+              <h3 className="text-card-title text-lg mb-5">Office Hours</h3>
+              <dl className="space-y-3 text-sm">
+                {[
+                  { day: "Monday – Friday", time: "10:00 AM – 5:00 PM" },
+                  { day: "Saturday", time: "10:00 AM – 1:00 PM" },
+                  { day: "Sunday", time: "Closed" },
+                ].map((h) => (
+                  <div key={h.day} className="flex justify-between gap-4">
+                    <dt className="text-body">{h.day}</dt>
+                    <dd className="font-semibold text-ieee-navy">{h.time}</dd>
+                  </div>
+                ))}
+              </dl>
+            </PremiumCard>
+
+            <PremiumCard className="p-6">
+              <h3 className="text-card-title text-lg mb-5">Follow Us</h3>
+              <div className="flex flex-wrap gap-3">
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`IEEE CUSAT on ${s.label}`}
+                    title={s.label}
+                    className="w-11 h-11 flex items-center justify-center border border-ieee-border bg-white text-ieee-navy hover:border-ieee-blue hover:bg-ieee-sky-muted transition-colors duration-200 ease-linear delay-0"
+                  >
+                    <SocialIcon label={s.label} />
+                  </a>
+                ))}
+              </div>
+            </PremiumCard>
+          </aside>
         </div>
-      </section>
-    </>
+      </PageSection>
+    </div>
   );
 }
 
-/* ── Sub-component: ContactItem ── */
 function ContactItem({
-  icon,
   label,
   value,
   href,
+  className = "",
 }: {
-  icon: React.ReactNode;
   label: string;
   value: string;
   href?: string;
+  className?: string;
 }) {
   return (
-    <div className="flex gap-5 items-start">
-      <div
-        className="flex-shrink-0 w-12 h-12 flex items-center justify-center text-white bg-[--color-navy]"
-        aria-hidden="true"
-      >
-        {icon}
-      </div>
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-[--color-muted] mb-1">
-          {label}
-        </p>
-        {href ? (
-          <a
-            href={href}
-            className="text-base font-bold text-[--color-charcoal] hover:text-[--color-navy] transition-colors block"
-          >
-            {value}
-          </a>
-        ) : (
-          <p className="text-base text-[--color-charcoal]">{value}</p>
-        )}
-      </div>
+    <div className={className}>
+      <p className="text-caption mb-1">{label}</p>
+      {href ? (
+        <a href={href} className="text-body font-medium text-ieee-navy hover:text-ieee-blue transition-colors">
+          {value}
+        </a>
+      ) : (
+        <p className="text-body">{value}</p>
+      )}
     </div>
+  );
+}
+
+function SocialIcon({ label }: { label: string }) {
+  if (label === "LinkedIn") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="currentColor">
+        <path d="M5.2 3.5A2.2 2.2 0 1 1 5.2 7.9a2.2 2.2 0 0 1 0-4.4ZM3.4 9.4h3.6V20H3.4V9.4Zm5.7 0h3.4v1.45h.05c.47-.89 1.62-1.83 3.35-1.83 3.58 0 4.24 2.36 4.24 5.44V20h-3.55v-4.9c0-1.17-.02-2.67-1.63-2.67-1.64 0-1.89 1.28-1.89 2.59V20H9.1V9.4Z" />
+      </svg>
+    );
+  }
+
+  if (label === "Instagram") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.7" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+
+  if (label === "Twitter/X") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="currentColor">
+        <path d="M18.9 3H22l-6.77 7.74L23.2 21h-6.24l-4.89-6.39L6.48 21H3.36l7.24-8.27L3 3h6.4l4.42 5.82L18.9 3Zm-1.1 15.97h1.73L8.55 4.93H6.7L17.8 18.97Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="currentColor">
+      <path d="M21.6 7.1a2.9 2.9 0 0 0-2.04-2.05C17.76 4.55 12 4.55 12 4.55s-5.76 0-7.56.5A2.9 2.9 0 0 0 2.4 7.1C1.9 8.9 1.9 12 1.9 12s0 3.1.5 4.9a2.9 2.9 0 0 0 2.04 2.05c1.8.5 7.56.5 7.56.5s5.76 0 7.56-.5a2.9 2.9 0 0 0 2.04-2.05c.5-1.8.5-4.9.5-4.9s0-3.1-.5-4.9Z" />
+      <path d="m10.1 15.35 5.05-3.35L10.1 8.65v6.7Z" fill="white" />
+    </svg>
   );
 }
