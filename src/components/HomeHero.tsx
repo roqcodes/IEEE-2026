@@ -106,7 +106,7 @@ export default function HomeHero() {
             </div>
 
             <FadeIn delay={0.12} className="max-lg:order-4">
-              <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4 mt-6 lg:mt-9">
+              <div className="grid grid-cols-2 items-stretch gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4 mt-6 lg:mt-9">
                 <PremiumButton href={current.cta.href} variant="primary" fullWidth="mobile">
                   {current.cta.label}
                 </PremiumButton>

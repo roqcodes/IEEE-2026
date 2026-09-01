@@ -56,7 +56,8 @@ export default function PremiumButton({
     sizes[size],
     variants[variant],
     isFullWidth && "w-full",
-    isMobileFullWidth && "w-full min-h-[3.25rem] sm:min-h-0 sm:w-auto",
+    isMobileFullWidth &&
+      "flex h-full w-full min-h-[4.5rem] items-center justify-center px-3 py-3 text-center leading-tight sm:min-h-0 sm:h-auto sm:w-auto sm:inline-flex sm:px-7 sm:py-3.5 sm:text-left sm:leading-normal",
     className
   );
 
@@ -74,7 +75,14 @@ export default function PremiumButton({
           />
         </>
       )}
-      <span className="relative">{children}</span>
+      <span
+        className={cn(
+          "relative",
+          isMobileFullWidth && "text-center leading-tight sm:text-left sm:leading-normal"
+        )}
+      >
+        {children}
+      </span>
       <svg
         className="relative w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1"
         fill="none"
@@ -107,7 +115,7 @@ export default function PremiumButton({
       <div
         className={cn(
           isFullWidth && "w-full",
-          isMobileFullWidth && "w-full sm:w-auto"
+          isMobileFullWidth && "flex h-full w-full sm:block sm:h-auto sm:w-auto"
         )}
       >
         {link}
@@ -121,7 +129,7 @@ export default function PremiumButton({
       whileTap={{ scale: 0.98 }}
       className={cn(
         isFullWidth && "block w-full",
-        isMobileFullWidth && "block w-full sm:inline-block sm:w-auto",
+        isMobileFullWidth && "flex h-full w-full sm:inline-block sm:h-auto sm:w-auto",
         !isFullWidth && !isMobileFullWidth && "inline-block"
       )}
     >

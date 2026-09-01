@@ -38,7 +38,7 @@ export default function HomeJoinCta() {
             Connect with fellow engineers, build technical skills, and be part of a
             globally recognized student branch at CUSAT.
           </p>
-          <div className="mx-auto flex w-full max-w-sm flex-col gap-4 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
+          <div className="mx-auto flex w-full max-w-sm flex-col items-stretch gap-4 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
             <PremiumButton
               href="/join"
               variant="secondary"
