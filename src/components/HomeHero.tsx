@@ -107,13 +107,15 @@ export default function HomeHero() {
             </div>
 
             <FadeIn delay={0.12} className="max-lg:order-4">
-              <div className="grid grid-cols-2 items-stretch gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4 mt-6 lg:mt-9">
-                <PremiumButton href={current.cta.href} variant="primary" fullWidth="mobile">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 lg:mt-9">
+                <PremiumButton href={current.cta.href} variant="primary">
                   {current.cta.label}
                 </PremiumButton>
-                <PremiumButton href="/about" variant="secondary" fullWidth="mobile">
-                  About Us
-                </PremiumButton>
+                <div className="hidden sm:block">
+                  <PremiumButton href="/about" variant="secondary">
+                    About Us
+                  </PremiumButton>
+                </div>
               </div>
             </FadeIn>
 
