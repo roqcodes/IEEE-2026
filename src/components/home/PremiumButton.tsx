@@ -14,7 +14,7 @@ interface PremiumButtonProps {
   variant?: Variant;
   size?: Size;
   className?: string;
-  fullWidth?: boolean;
+  fullWidth?: boolean | "mobile";
   external?: boolean;
   onClick?: () => void;
 }
@@ -45,6 +45,9 @@ export default function PremiumButton({
 }: PremiumButtonProps) {
   const reduce = useReducedMotion();
 
+  const isFullWidth = fullWidth === true;
+  const isMobileFullWidth = fullWidth === "mobile";
+
   const classes = cn(
     "group relative inline-flex items-center justify-center overflow-hidden",
     "font-semibold uppercase",
@@ -52,7 +55,8 @@ export default function PremiumButton({
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ieee-blue",
     sizes[size],
     variants[variant],
-    fullWidth && "w-full",
+    isFullWidth && "w-full",
+    isMobileFullWidth && "w-full min-h-[3.25rem] sm:min-h-0 sm:w-auto",
     className
   );
 
@@ -99,14 +103,27 @@ export default function PremiumButton({
   );
 
   if (reduce) {
-    return <div className={cn(fullWidth && "w-full")}>{link}</div>;
+    return (
+      <div
+        className={cn(
+          isFullWidth && "w-full",
+          isMobileFullWidth && "w-full sm:w-auto"
+        )}
+      >
+        {link}
+      </div>
+    );
   }
 
   return (
     <motion.div
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
-      className={cn(fullWidth ? "block w-full" : "inline-block")}
+      className={cn(
+        isFullWidth && "block w-full",
+        isMobileFullWidth && "block w-full sm:inline-block sm:w-auto",
+        !isFullWidth && !isMobileFullWidth && "inline-block"
+      )}
     >
       {link}
     </motion.div>

@@ -38,13 +38,19 @@ export default function HomeJoinCta() {
             Connect with fellow engineers, build technical skills, and be part of a
             globally recognized student branch at CUSAT.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <PremiumButton href="/join" variant="secondary" className="!bg-white !text-ieee-blue !border-white hover:!bg-ieee-sky">
+          <div className="mx-auto flex w-full max-w-sm flex-col gap-4 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
+            <PremiumButton
+              href="/join"
+              variant="secondary"
+              fullWidth="mobile"
+              className="!bg-white !text-ieee-blue !border-white hover:!bg-ieee-sky"
+            >
               Join the Branch
             </PremiumButton>
             <PremiumButton
               href="/contact"
               variant="ghost"
+              fullWidth="mobile"
               className="!text-white !border-white/30 hover:!bg-white/10 hover:!border-white/50"
             >
               Contact Us
