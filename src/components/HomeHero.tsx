@@ -75,7 +75,7 @@ export default function HomeHero() {
       </div>
 
       <div className="relative z-10 flex-1 flex items-center justify-center min-h-0 w-full overflow-y-auto">
-        <div className="container-editorial w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-10">
+        <div className="container-editorial w-full pl-7 pr-4 sm:pl-10 sm:pr-6 lg:pl-14 lg:pr-10 py-12 sm:py-14 lg:py-10">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center w-full">
             <div className="lg:col-span-7 xl:col-span-7 flex flex-col max-lg:gap-0">
               <FadeIn className="max-lg:order-1">
@@ -102,7 +102,7 @@ export default function HomeHero() {
               </AnimatePresence>
             </div>
 
-            <div className="max-lg:order-3 lg:hidden -mx-4 sm:-mx-6 mt-4 mb-2">
+            <div className="max-lg:order-3 lg:hidden -mr-4 sm:-mr-6 mt-4 mb-2">
               <HeroNetworkMap variant="mobile" />
             </div>
 
